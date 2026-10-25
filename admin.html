@@ -1,0 +1,1406 @@
+/**
+ * EduTrack Pro — Primary School Backend (Uganda)
+ * Deploy as Web App: Execute as "Me", Access "Anyone"
+ */
+
+// ============================================================
+// CONFIGURATION  ← EDIT THESE
+// ============================================================
+var ACCOUNTS_SHEET_ID = '1OmV8zDm_KfwdHs3KQcvdpeIiJimLUa3KxltXcPcZjaQ'; // Accounts sheet
+var ROOT_DRIVE_FOLDER_NAME = 'EduTrack Pro';
+
+// Accounts sheet tabs (must exist)
+var TAB_ACCOUNTS = 'Accounts';
+var TAB_SCHOOLS  = 'Schools';
+var TAB_CLASS_LINKS = 'ClassLinks';
+
+// Per-school sheet tabs (auto-created when needed)
+var T_FEES      = 'Fees';
+var T_EXPENSES  = 'Expenses';
+var T_ATTENDANCE= 'Attendance';
+var T_NOTICES   = 'Notices';
+var T_TIMETABLE = 'Timetable';
+var T_PROGRAM   = 'Program';
+var T_CHAT      = 'Chat';
+var T_SETTINGS  = 'Settings';
+var T_ACCOUNTS_SCHOOL = 'SchoolAccounts'; // per-school user accounts
+
+// ============================================================
+// WEB APP ENTRY
+// ============================================================
+function doPost(e){
+  try {
+    var p = e.parameter || {};
+    var action = String(p.action || '').trim();
+    var out = route(action, p);
+    return jsonOut(out);
+  } catch(err){
+    return jsonOut({ success:false, message: 'Server error: ' + err.message });
+  }
+}
+
+function doGet(e){
+  return jsonOut({ success:true, message:'EduTrack Pro backend is running.' });
+}
+
+function jsonOut(obj){
+  return ContentService
+    .createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+// ============================================================
+// ROUTER
+// ============================================================
+function route(action, p){
+  switch(action){
+    // ---- auth / schools ----
+    case 'getSchools':          return getSchools();
+    case 'verifyLogin':         return verifyLogin(p);
+    case 'signupAdmin':         return signupAdmin(p);
+    case 'getParentChildren':   return getParentChildren(p);
+
+    // ---- class links ----
+    case 'getClassLinks':       return getClassLinks(p);
+    case 'saveClassLink':       return saveClassLink(p);
+
+    // ---- students ----
+    case 'getStudents':         return getStudents(p);
+    case 'getStudentCount':     return getStudentCount(p);
+    case 'getNextStudentId':    return getNextStudentId(p);
+    case 'registerStudent':     return registerStudent(p);
+
+    // ---- scores ----
+    case 'postScoresOnly':      return postScoresOnly(p);
+    case 'getAllData':          return getAllData(p);
+
+    // ---- attendance ----
+    case 'saveManualAttendance':return saveManualAttendance(p);
+    case 'saveAttendance':      return saveAttendance(p);
+    case 'getManualAttendance': return getManualAttendance(p);
+    case 'getAttendanceSummary':return getAttendanceSummary(p);
+    case 'getAttendanceDays':   return getAttendanceDays(p);
+
+    // ---- fees / expenses ----
+    case 'saveFeeRecord':       return saveFeeRecord(p);
+    case 'getFeeRecords':       return getFeeRecords(p);
+    case 'getFeeBalance':       return getFeeBalance(p);
+    case 'saveExpense':         return saveExpense(p);
+    case 'getExpenses':         return getExpenses(p);
+
+    // ---- notices / program / timetable ----
+    case 'saveNotice':          return saveNotice(p);
+    case 'getNotices':          return getNotices(p);
+    case 'deleteNotice':        return deleteNotice(p);
+    case 'saveProgramItem':     return saveProgramItem(p);
+    case 'getProgram':          return getProgram(p);
+    case 'deleteProgramItem':   return deleteProgramItem(p);
+    case 'saveTimetable':       return saveTimetable(p);
+    case 'getTimetable':        return getTimetable(p);
+    case 'clearTimetable':      return clearTimetable(p);
+
+    // ---- chat ----
+    case 'getChatUsers':        return getChatUsers(p);
+    case 'saveChatMessage':     return saveChatMessage(p);
+    case 'getChatMessages':     return getChatMessages(p);
+
+    // ---- accounts ----
+    case 'createUserAccount':   return createUserAccount(p);
+    case 'getAllAccounts':      return getAllAccounts(p);
+    case 'deleteAccount':       return deleteAccount(p);
+    case 'getTeacherAccount':   return getTeacherAccount(p);
+    case 'updateTeacherProfile':return updateTeacherProfile(p);
+
+    // ---- settings / photos / signatures ----
+    case 'getSchoolSettings':   return getSchoolSettings(p);
+    case 'saveSchoolSettings':  return saveSchoolSettings(p);
+    case 'ensureDriveFolders':  return ensureDriveFolders(p);
+    case 'uploadPhoto':         return uploadPhoto(p);
+    case 'deletePhoto':         return deletePhoto(p);
+    case 'getPhotosForClass':   return getPhotosForClass(p);
+    case 'uploadSchoolBadge':   return uploadSchoolBadge(p);
+    case 'uploadSignature':     return uploadSignature(p);
+
+    default:
+      return { success:false, message: 'Unknown action: ' + action };
+  }
+}
+
+// ============================================================
+// GENERIC SHEET HELPERS
+// ============================================================
+function ss_(id){ return SpreadsheetApp.openById(id); }
+
+function getOrCreateSheet_(spreadsheet, name, headers){
+  var sh = spreadsheet.getSheetByName(name);
+  if(!sh){
+    sh = spreadsheet.insertSheet(name);
+    if(headers && headers.length) sh.appendRow(headers);
+  } else if(headers && sh.getLastRow() === 0){
+    sh.appendRow(headers);
+  }
+  return sh;
+}
+
+function sheetToObjects_(sh){
+  if(!sh) return [];
+  var range = sh.getDataRange();
+  var values = range.getValues();
+  if(values.length < 2) return [];
+  var headers = values[0].map(function(h){ return String(h).trim(); });
+  var rows = [];
+  for(var r=1; r<values.length; r++){
+    var obj = {};
+    for(var c=0; c<headers.length; c++){
+      obj[headers[c]] = values[r][c];
+    }
+    rows.push(obj);
+  }
+  return rows;
+}
+
+function findRow_(sh, colIndex, value){
+  var values = sh.getDataRange().getValues();
+  for(var i=1; i<values.length; i++){
+    if(String(values[i][colIndex]) === String(value)) return i+1;
+  }
+  return -1;
+}
+
+function safeId_(id){
+  return String(id || '').replace(/[^a-zA-Z0-9-_]/g, '_');
+}
+
+// ============================================================
+// ACCOUNTS / SCHOOLS / LOGIN
+// ============================================================
+function accountsSheet_(){ return ss_(ACCOUNTS_SHEET_ID); }
+
+function getSchools(){
+  var sh = accountsSheet_().getSheetByName(TAB_SCHOOLS);
+  if(!sh) return { success:true, data:{ schools: [] } };
+  var rows = sheetToObjects_(sh);
+  var names = [];
+  rows.forEach(function(r){
+    var n = r['School Name'] || r['schoolName'] || r['School'];
+    if(n && names.indexOf(n) === -1) names.push(n);
+  });
+  return { success:true, data:{ schools: names } };
+}
+
+function verifyLogin(p){
+  var role = String(p.role || '').toLowerCase();
+  var username = String(p.username || '').trim();
+  var password = String(p.password || '');
+  var school = String(p.school || '').trim();
+  var childId = String(p.childId || '').trim();
+
+  if(!username || !password){
+    return { success:false, message:'Enter username and password.' };
+  }
+
+  var sh = accountsSheet_().getSheetByName(TAB_ACCOUNTS);
+  if(!sh) return { success:false, message:'Accounts sheet not initialised.' };
+
+  var rows = sheetToObjects_(sh);
+  var match = null;
+  rows.forEach(function(r){
+    var rRole = String(r.Role || r.role || '').toLowerCase();
+    var rUser = String(r.Username || r.username || '').trim();
+    var rSchool = String(r.School || r.school || '').trim();
+    var rPass = String(r.Password || r.password || '');
+    var rActive = String(r.Active || 'true').toLowerCase();
+
+    if(rActive === 'false') return;
+    if(rRole !== role) return;
+    if(rUser !== username) return;
+    if(rPass !== password) return;
+    if(school && rSchool && rSchool !== school) return;
+    match = r;
+  });
+
+  if(!match){
+    return { success:false, message:'Invalid credentials for this role.' };
+  }
+
+  var session = {
+    username: String(match.Username || match.username || username),
+    name: String(match.Name || match.name || username),
+    role: String(match.Role || match.role || role).toLowerCase(),
+    school: String(match.School || match.school || school),
+    staffId: String(match.StaffID || match.staffId || ''),
+    phone: String(match.Phone || match.phone || ''),
+    email: String(match.Email || match.email || ''),
+    qualifications: String(match.Qualifications || match.qualifications || ''),
+    salary: Number(match.Salary || 0),
+    assignments: String(match.Assignments || match.assignments || '[]'),
+    otherRoles: String(match.OtherRoles || match.otherRoles || '[]')
+  };
+
+  // Parent: attach children list
+  if(session.role === 'parent'){
+    session.children = childrenForParent_(session.school, session.username);
+    if(childId){
+      var chosen = null;
+      session.children.forEach(function(c){ if(String(c.studentId) === String(childId)) chosen = c; });
+      if(!chosen){
+        return { success:false, message:'Selected child not linked to this parent.' };
+      }
+      session.childId = chosen.studentId;
+      session.childName = chosen.studentName;
+      session.childClass = chosen.class;
+    }
+  }
+
+  return { success:true, data: session };
+}
+
+function signupAdmin(p){
+  var name = String(p.name || '').trim();
+  var username = String(p.username || '').trim().toLowerCase();
+  var password = String(p.password || '');
+  var schoolName = String(p.schoolName || '').trim();
+
+  if(!name || !username || !password || !schoolName){
+    return { success:false, message:'Missing required fields.' };
+  }
+
+  var book = accountsSheet_();
+  var accSheet = getOrCreateSheet_(book, TAB_ACCOUNTS,
+    ['Username','Password','Name','Role','School','StaffID','Phone','Email','Qualifications','Salary','Assignments','OtherRoles','Active','CreatedAt']);
+  var schoolSheet = getOrCreateSheet_(book, TAB_SCHOOLS,
+    ['School Name','Phone','Email','Address','Motto','CreatedAt']);
+
+  // check duplicate username + school
+  var rows = sheetToObjects_(accSheet);
+  for(var i=0;i<rows.length;i++){
+    if(String(rows[i].Username).toLowerCase() === username &&
+       String(rows[i].School) === schoolName){
+      return { success:false, message:'Username already exists for this school.' };
+    }
+  }
+
+  accSheet.appendRow([
+    username, password, name, 'admin', schoolName,
+    'ADM-' + Math.floor(1000+Math.random()*9000),
+    p.schoolPhone || '', p.schoolEmail || '', '', 0, '[]', '[]', true, new Date().toISOString()
+  ]);
+  schoolSheet.appendRow([
+    schoolName, p.schoolPhone || '', p.schoolEmail || '',
+    p.schoolAddress || '', p.schoolMotto || '', new Date().toISOString()
+  ]);
+
+  return {
+    success:true,
+    data:{
+      username: username, name: name, role:'admin',
+      school: schoolName, staffId:'ADM'
+    }
+  };
+}
+
+function getParentChildren(p){
+  var school = String(p.school || '').trim();
+  var username = String(p.username || '').trim();
+  return { success:true, data:{ children: childrenForParent_(school, username) } };
+}
+
+function childrenForParent_(school, username){
+  try {
+    var sh = accountsSheet_().getSheetByName(TAB_ACCOUNTS);
+    if(!sh) return [];
+    var rows = sheetToObjects_(sh);
+    var childIds = [];
+    rows.forEach(function(r){
+      var rRole = String(r.Role || '').toLowerCase();
+      var rUser = String(r.Username || '').trim();
+      var rSchool = String(r.School || '').trim();
+      if(rRole === 'parent' && rUser === username && (!school || rSchool === school)){
+        var linked = String(r.ChildID || r.ChildId || r.childId || '').trim();
+        if(linked) linked.split(',').forEach(function(x){
+          var v = x.trim();
+          if(v) childIds.push(v);
+        });
+      }
+    });
+    if(childIds.length === 0) return [];
+
+    // Find each child across the school's class sheets
+    var results = [];
+    var map = getClassLinks({school: school}).data.links || [];
+    for(var i=0; i<map.length; i++){
+      var link = map[i];
+      if(!link.sheetId) continue;
+      try {
+        var classSheet = ss_(link.sheetId).getSheetByName('Students');
+        if(!classSheet) continue;
+        var students = sheetToObjects_(classSheet);
+        students.forEach(function(s){
+          if(childIds.indexOf(String(s.StudentID || s.studentId || '')) !== -1){
+            results.push({
+              studentId: String(s.StudentID || s.studentId || ''),
+              studentName: String(s.StudentName || s.studentName || ''),
+              class: link.className
+            });
+          }
+        });
+      } catch(e){}
+    }
+    return results;
+  } catch(e){ return []; }
+}
+
+// ============================================================
+// CLASS LINKS
+// ============================================================
+function getClassLinks(p){
+  var school = String(p.school || '').trim();
+  if(!school) return { success:false, message:'School required.' };
+
+  var sh = accountsSheet_().getSheetByName(TAB_CLASS_LINKS);
+  if(!sh){
+    sh = accountsSheet_().insertSheet(TAB_CLASS_LINKS);
+    sh.appendRow(['School','ClassName','SheetID','SheetURL','UpdatedAt']);
+  }
+  var rows = sheetToObjects_(sh);
+  var links = rows
+    .filter(function(r){ return String(r.School) === school; })
+    .map(function(r){
+      return {
+        className: String(r.ClassName || ''),
+        sheetId: String(r.SheetID || ''),
+        sheetUrl: String(r.SheetURL || '')
+      };
+    });
+  return { success:true, data:{ links: links } };
+}
+
+function saveClassLink(p){
+  var school = String(p.school || '').trim();
+  var className = String(p.className || '').trim();
+  var sheetId = String(p.sheetId || '').trim();
+  var sheetUrl = String(p.sheetUrl || '').trim();
+  if(!school || !className || !sheetId){
+    return { success:false, message:'Missing fields.' };
+  }
+  var sh = accountsSheet_().getSheetByName(TAB_CLASS_LINKS);
+  if(!sh){
+    sh = accountsSheet_().insertSheet(TAB_CLASS_LINKS);
+    sh.appendRow(['School','ClassName','SheetID','SheetURL','UpdatedAt']);
+  }
+  var rows = sheetToObjects_(sh);
+  var foundRow = -1;
+  for(var i=0;i<rows.length;i++){
+    if(String(rows[i].School) === school && String(rows[i].ClassName) === className){
+      foundRow = i+2; break;
+    }
+  }
+  if(foundRow > 0){
+    sh.getRange(foundRow, 1, 1, 5).setValues([[school, className, sheetId, sheetUrl, new Date().toISOString()]]);
+  } else {
+    sh.appendRow([school, className, sheetId, sheetUrl, new Date().toISOString()]);
+  }
+  return { success:true, message:'Link saved.' };
+}
+
+// ============================================================
+// STUDENT OPERATIONS  (per-class sheet)
+// ============================================================
+function getStudents(p){
+  var sheetId = String(p.sheetId || '').trim();
+  if(!sheetId) return { success:false, message:'sheetId required.' };
+  var sh = ss_(sheetId).getSheetByName('Students');
+  if(!sh) return { success:true, data:{ students: [] } };
+  var rows = sheetToObjects_(sh);
+  var students = rows.map(function(r){
+    return {
+      studentId: String(r.StudentID || r.studentId || ''),
+      studentName: String(r.StudentName || r.studentName || ''),
+      sex: String(r.Sex || ''),
+      stream: String(r.Stream || ''),
+      residence: String(r.Residence || ''),
+      parentName: String(r.ParentName || ''),
+      parentPhone: String(r.ParentPhone || ''),
+      parentEmail: String(r.ParentEmail || ''),
+      class: String(r.Class || p.className || '')
+    };
+  });
+  return { success:true, data:{ students: students } };
+}
+
+function getStudentCount(p){
+  var school = String(p.school || '').trim();
+  if(!school) return { success:false, message:'School required.' };
+  var links = getClassLinks({school: school}).data.links || [];
+  var total = 0;
+  links.forEach(function(l){
+    if(!l.sheetId) return;
+    try {
+      var sh = ss_(l.sheetId).getSheetByName('Students');
+      if(sh && sh.getLastRow() > 1) total += (sh.getLastRow() - 1);
+    } catch(e){}
+  });
+  return { success:true, data:{ count: total } };
+}
+
+function getNextStudentId(p){
+  var sheetId = String(p.sheetId || '').trim();
+  if(!sheetId) return { success:false, message:'sheetId required.' };
+  var sh = ss_(sheetId).getSheetByName('Students');
+  var next = 'Pup001';
+  if(sh && sh.getLastRow() > 1){
+    var last = sheetToObjects_(sh).pop();
+    var lastId = String(last.StudentID || last.studentId || '');
+    var m = lastId.match(/(\d+)$/);
+    if(m){
+      var n = parseInt(m[1],10) + 1;
+      next = 'Pup' + String(n).padStart(3,'0');
+    }
+  }
+  return { success:true, data:{ nextId: next } };
+}
+
+function registerStudent(p){
+  var sheetId = String(p.sheetId || '').trim();
+  if(!sheetId) return { success:false, message:'sheetId required.' };
+
+  var book = ss_(sheetId);
+  var sh = getOrCreateSheet_(book, 'Students',
+    ['StudentID','StudentName','Sex','Stream','Residence','ParentName','ParentPhone','ParentEmail','Class','Term','Year','RegisteredAt']);
+
+  // duplicate check
+  var rows = sheetToObjects_(sh);
+  var sid = String(p.studentId || '').trim();
+  for(var i=0;i<rows.length;i++){
+    if(String(rows[i].StudentID) === sid){
+      return { success:false, message:'Student ID already exists.' };
+    }
+  }
+
+  sh.appendRow([
+    sid, p.studentName || '', p.sex || '', p.stream || '', p.residence || '',
+    p.parentName || '', p.parentPhone || '', p.parentEmail || '',
+    p.className || '', p.term || '', p.year || '', new Date().toISOString()
+  ]);
+
+  // ensure Photos tab exists
+  getOrCreateSheet_(book, 'Photos', ['ID','Name','URL','UpdatedAt']);
+
+  return { success:true, data:{ studentId: sid } };
+}
+
+// ============================================================
+// SCORES (Primary: BOT / MOT / EOT)
+// ============================================================
+function postScoresOnly(p){
+  var sheetId = String(p.sheetId || '').trim();
+  var subject = String(p.subject || '').trim();
+  var level = String(p.level || 'primary').toLowerCase();
+  var scores = [];
+  try { scores = JSON.parse(p.scores || '[]'); } catch(e){}
+
+  if(!sheetId || !subject) return { success:false, message:'Missing sheetId/subject.' };
+  if(!scores.length) return { success:false, message:'No scores provided.' };
+
+  var book = ss_(sheetId);
+  var tabName = subject.substring(0,28); // sheet tab safe
+  var sh = getOrCreateSheet_(book, tabName,
+    ['StudentID','StudentName','BOT','MOT','EOT','Average','Grade','TeacherInitials','UpdatedAt']);
+
+  var existing = sheetToObjects_(sh);
+  var indexBySid = {};
+  for(var r=0;r<existing.length;r++){
+    indexBySid[String(existing[r].StudentID)] = r+2;
+  }
+
+  var added = 0, updated = 0;
+  scores.forEach(function(s){
+    var sid = String(s.studentId || '');
+    var sn  = String(s.studentName || '');
+    var bot = Number(s.bot || 0);
+    var mot = Number(s.mot || 0);
+    var eot = Number(s.eot || 0);
+
+    // average: mean of entered assessments (missing → 0 but excluded if blank)
+    var vals = [];
+    if(s.bot !== undefined && s.bot !== '') vals.push(bot);
+    if(s.mot !== undefined && s.mot !== '') vals.push(mot);
+    if(s.eot !== undefined && s.eot !== '') vals.push(eot);
+    var avg = vals.length ? (vals.reduce(function(a,b){return a+b;},0)/vals.length) : 0;
+
+    var grade = primaryGrade_(avg);
+
+    var row = [sid, sn, bot, mot, eot, Math.round(avg*10)/10, grade, s.teacherInitials || '', new Date().toISOString()];
+
+    if(indexBySid[sid]){
+      sh.getRange(indexBySid[sid], 1, 1, row.length).setValues([row]);
+      updated++;
+    } else {
+      sh.appendRow(row);
+      added++;
+    }
+  });
+
+  return { success:true, data:{ tabName: tabName, added: added, updated: updated } };
+}
+
+function primaryGrade_(pct){
+  if(pct >= 80) return 'D1';
+  if(pct >= 70) return 'D2';
+  if(pct >= 60) return 'C3';
+  if(pct >= 50) return 'C4';
+  if(pct >= 40) return 'P5';
+  if(pct >= 30) return 'P6';
+  if(pct >= 20) return 'P7';
+  if(pct >= 10) return 'F8';
+  return 'F9';
+}
+
+function getAllData(p){
+  var sheetId = String(p.sheetId || '').trim();
+  if(!sheetId) return { success:false, message:'sheetId required.' };
+  var book = ss_(sheetId);
+  var students = sheetToObjects_(book.getSheetByName('Students'));
+
+  // collect all subject tabs (sheets that are not the built-in ones)
+  var builtIn = {'Students':1,'Photos':1,'Attendance':1};
+  var subjectSheets = book.getSheets().filter(function(sh){
+    return !builtIn[sh.getName()];
+  });
+
+  var scoreIndex = {}; // sid -> {subject: row}
+  subjectSheets.forEach(function(sh){
+    var rows = sheetToObjects_(sh);
+    rows.forEach(function(r){
+      var sid = String(r.StudentID || '');
+      if(!sid) return;
+      if(!scoreIndex[sid]) scoreIndex[sid] = {};
+      scoreIndex[sid][sh.getName()] = {
+        bot: r.BOT, mot: r.MOT, eot: r.EOT,
+        average: r.Average, grade: r.Grade,
+        teacherInitials: r.TeacherInitials
+      };
+    });
+  });
+
+  var list = students.map(function(s){
+    var sid = String(s.StudentID || '');
+    return {
+      studentId: sid,
+      studentName: String(s.StudentName || ''),
+      sex: String(s.Sex || ''),
+      stream: String(s.Stream || ''),
+      residence: String(s.Residence || ''),
+      class: String(s.Class || p.className || ''),
+      scores: scoreIndex[sid] || {}
+    };
+  });
+
+  return { success:true, data:{ sheetData:{ students: list } } };
+}
+
+// ============================================================
+// ATTENDANCE
+// ============================================================
+function saveManualAttendance(p){
+  var sheetId = String(p.sheetId || '').trim();
+  var className = String(p.className || '').trim();
+  var date = String(p.date || '').trim();
+  var term = String(p.term || 'III');
+  var year = String(p.year || '2026');
+  var records = [];
+  try { records = JSON.parse(p.records || '[]'); } catch(e){}
+
+  if(!sheetId || !className || !date) return { success:false, message:'Missing fields.' };
+
+  var book = ss_(sheetId);
+  var sh = getOrCreateSheet_(book, 'Attendance',
+    ['Date','Term','Year','Class','StudentID','StudentName','Status','Method','MarkedBy','MarkedByRole','GPS','Timestamp']);
+
+  // remove existing rows for this date+class so we replace cleanly
+  var data = sh.getDataRange().getValues();
+  for(var r=data.length-1; r>=1; r--){
+    if(String(data[r][0]) === date && String(data[r][3]) === className){
+      sh.deleteRow(r+1);
+    }
+  }
+
+  records.forEach(function(rec){
+    sh.appendRow([
+      date, term, year, className,
+      rec.studentId || '', rec.studentName || '', rec.status || 'present',
+      p.method || 'Manual', p.markedBy || '', p.markedByRole || '',
+      p.gps || '', new Date().toISOString()
+    ]);
+  });
+
+  return { success:true, message:'Attendance saved.' };
+}
+
+function saveAttendance(p){
+  var school = String(p.school || '').trim();
+  var studentId = String(p.studentId || '').trim();
+  var studentName = String(p.studentName || '').trim();
+  var date = String(p.date || '').trim();
+  var time = String(p.time || '');
+  var method = String(p.method || 'Face');
+
+  if(!school || !studentId || !date) return { success:false, message:'Missing fields.' };
+
+  var links = getClassLinks({school: school}).data.links || [];
+  var sheetId = null;
+  // find a class sheet that contains the student
+  for(var i=0;i<links.length;i++){
+    if(!links[i].sheetId) continue;
+    try {
+      var sh = ss_(links[i].sheetId).getSheetByName('Attendance');
+      if(sh){
+        var rows = sheetToObjects_(sh);
+        if(rows.some(function(r){ return String(r.StudentID) === studentId; })){
+          sheetId = links[i].sheetId; break;
+        }
+      }
+    } catch(e){}
+  }
+  if(!sheetId){
+    // fallback: first class sheet
+    if(links.length && links[0].sheetId) sheetId = links[0].sheetId;
+    else return { success:false, message:'No class sheet available.' };
+  }
+  var book = ss_(sheetId);
+  var sh = getOrCreateSheet_(book, 'Attendance',
+    ['Date','Term','Year','Class','StudentID','StudentName','Status','Method','MarkedBy','MarkedByRole','GPS','Timestamp']);
+  sh.appendRow([date, '', '', '', studentId, studentName, 'present', method, 'auto', 'auto', '', new Date().toISOString()]);
+  return { success:true };
+}
+
+function getManualAttendance(p){
+  var sheetId = String(p.sheetId || '').trim();
+  var date = String(p.date || '').trim();
+  var className = String(p.className || '').trim();
+  if(!sheetId || !date) return { success:false, message:'Missing fields.' };
+  var sh = ss_(sheetId).getSheetByName('Attendance');
+  if(!sh) return { success:true, data:{ records: [] } };
+  var rows = sheetToObjects_(sh);
+  var filtered = rows.filter(function(r){
+    return String(r.Date) === date && (!className || String(r.Class) === className);
+  }).map(function(r){
+    return {
+      studentId: String(r.StudentID || ''),
+      studentName: String(r.StudentName || ''),
+      status: String(r.Status || ''),
+      date: String(r.Date || ''),
+      class: String(r.Class || '')
+    };
+  });
+  return { success:true, data:{ records: filtered } };
+}
+
+function getAttendanceSummary(p){
+  var school = String(p.school || '').trim();
+  var date = String(p.date || '').trim();
+  var present = 0, absent = 0, late = 0, leave = 0;
+  var links = getClassLinks({school: school}).data.links || [];
+  links.forEach(function(l){
+    if(!l.sheetId) return;
+    try {
+      var sh = ss_(l.sheetId).getSheetByName('Attendance');
+      if(!sh) return;
+      var rows = sheetToObjects_(sh);
+      rows.forEach(function(r){
+        if(String(r.Date) !== date) return;
+        var st = String(r.Status || '').toLowerCase();
+        if(st === 'present') present++;
+        else if(st === 'late') late++;
+        else if(st === 'leave') leave++;
+        else if(st === 'absent') absent++;
+      });
+    } catch(e){}
+  });
+  return { success:true, data:{ present: present, absent: absent, late: late, leave: leave } };
+}
+
+function getAttendanceDays(p){
+  var sheetId = String(p.sheetId || '').trim();
+  if(!sheetId) return { success:false, message:'sheetId required.' };
+  var sh = ss_(sheetId).getSheetByName('Attendance');
+  if(!sh) return { success:true, data:{ days:{} } };
+  var rows = sheetToObjects_(sh);
+  var out = {};
+  rows.forEach(function(r){
+    var sid = String(r.StudentID || '');
+    if(!sid) return;
+    if(!out[sid]) out[sid] = { present:0, absent:0, late:0, leave:0, total:0 };
+    var st = String(r.Status || '').toLowerCase();
+    if(st === 'present') out[sid].present++;
+    else if(st === 'late') out[sid].late++;
+    else if(st === 'leave') out[sid].leave++;
+    else if(st === 'absent') out[sid].absent++;
+    out[sid].total++;
+  });
+  return { success:true, data:{ days: out } };
+}
+
+// ============================================================
+// FEES & EXPENSES  (per-school finance sheet, else a Finance tab in accounts)
+// ============================================================
+function financeSheetFor_(school){
+  // Use a dedicated sheet per school inside the accounts spreadsheet
+  var book = accountsSheet_();
+  var name = 'FIN_' + safeId_(school);
+  var sh = book.getSheetByName(name);
+  if(!sh){
+    sh = book.insertSheet(name);
+    sh.appendRow(['ReceiptID','StudentID','Amount','Method','Term','Year','Date','Time','Narration','Timestamp']);
+  }
+  return sh;
+}
+
+function saveFeeRecord(p){
+  var school = String(p.school || '').trim();
+  var rec = {};
+  try { rec = JSON.parse(p.record || '{}'); } catch(e){}
+  if(!school || !rec.studentId || !rec.amount){
+    return { success:false, message:'Missing fields.' };
+  }
+  var sh = financeSheetFor_(school);
+  sh.appendRow([
+    rec.id || ('RCP-' + Date.now()),
+    rec.studentId || '',
+    Number(rec.amount) || 0,
+    rec.method || 'cash',
+    rec.term || '',
+    rec.year || '',
+    rec.date || '',
+    rec.time || '',
+    rec.narration || '',
+    new Date().toISOString()
+  ]);
+  return { success:true, data:{ id: rec.id } };
+}
+
+function getFeeRecords(p){
+  var school = String(p.school || '').trim();
+  if(!school) return { success:false, message:'School required.' };
+  var sh = financeSheetFor_(school);
+  var rows = sheetToObjects_(sh);
+  var records = rows.map(function(r){
+    return {
+      id: String(r.ReceiptID || ''),
+      studentId: String(r.StudentID || ''),
+      amount: Number(r.Amount || 0),
+      method: String(r.Method || ''),
+      term: String(r.Term || ''),
+      year: String(r.Year || ''),
+      date: String(r.Date || ''),
+      time: String(r.Time || ''),
+      narration: String(r.Narration || '')
+    };
+  });
+  return { success:true, data:{ records: records } };
+}
+
+function getFeeBalance(p){
+  var school = String(p.school || '').trim();
+  var studentId = String(p.studentId || '').trim();
+  if(!school || !studentId) return { success:false, message:'Missing fields.' };
+
+  var settings = {};
+  try { settings = JSON.parse(getSchoolSettings({school: school}).data.settings || '{}'); } catch(e){}
+  var expected = Number(settings['Expected Fees'] || 0);
+
+  var sh = financeSheetFor_(school);
+  var rows = sheetToObjects_(sh);
+  var paid = 0;
+  rows.forEach(function(r){
+    if(String(r.StudentID) === studentId) paid += Number(r.Amount || 0);
+  });
+  return { success:true, data:{ balance: Math.max(expected - paid, 0), paid: paid, expected: expected } };
+}
+
+function expenseSheetFor_(school){
+  var book = accountsSheet_();
+  var name = 'EXP_' + safeId_(school);
+  var sh = book.getSheetByName(name);
+  if(!sh){
+    sh = book.insertSheet(name);
+    sh.appendRow(['ExpenseID','Description','Amount','Category','Date','Time','Narration','Timestamp']);
+  }
+  return sh;
+}
+
+function saveExpense(p){
+  var school = String(p.school || '').trim();
+  var exp = {};
+  try { exp = JSON.parse(p.expense || '{}'); } catch(e){}
+  if(!school || !exp.description || !exp.amount){
+    return { success:false, message:'Missing fields.' };
+  }
+  var sh = expenseSheetFor_(school);
+  sh.appendRow([
+    exp.id || ('EXP-' + Date.now()),
+    exp.description, Number(exp.amount)||0, exp.category || 'other',
+    exp.date || '', exp.time || '', exp.narration || '', new Date().toISOString()
+  ]);
+  return { success:true };
+}
+
+function getExpenses(p){
+  var school = String(p.school || '').trim();
+  if(!school) return { success:false, message:'School required.' };
+  var sh = expenseSheetFor_(school);
+  var rows = sheetToObjects_(sh);
+  var expenses = rows.map(function(r){
+    return {
+      id: String(r.ExpenseID || ''),
+      description: String(r.Description || ''),
+      amount: Number(r.Amount || 0),
+      category: String(r.Category || ''),
+      date: String(r.Date || ''),
+      time: String(r.Time || ''),
+      narration: String(r.Narration || '')
+    };
+  });
+  return { success:true, data:{ expenses: expenses } };
+}
+
+// ============================================================
+// NOTICES / PROGRAM / TIMETABLE
+// ============================================================
+function noticesSheetFor_(school){
+  var book = accountsSheet_();
+  var name = 'NTC_' + safeId_(school);
+  var sh = book.getSheetByName(name);
+  if(!sh){
+    sh = book.insertSheet(name);
+    sh.appendRow(['ID','Title','Body','Priority','Target','Date','Expiry','PostedBy','Timestamp']);
+  }
+  return sh;
+}
+
+function saveNotice(p){
+  var school = String(p.school || '').trim();
+  var n = {};
+  try { n = JSON.parse(p.notice || '{}'); } catch(e){}
+  if(!school || !n.title || !n.body) return { success:false, message:'Missing fields.' };
+  var sh = noticesSheetFor_(school);
+  var id = 'NTC-' + Date.now();
+  sh.appendRow([id, n.title, n.body, n.priority || 'low', n.target || 'all', n.date || '', n.expiry || '', n.postedBy || '', new Date().toISOString()]);
+  return { success:true, data:{ id: id } };
+}
+
+function getNotices(p){
+  var school = String(p.school || '').trim();
+  if(!school) return { success:false, message:'School required.' };
+  var sh = noticesSheetFor_(school);
+  var rows = sheetToObjects_(sh);
+  var notices = rows.map(function(r){
+    return {
+      id: String(r.ID || ''), title: String(r.Title || ''),
+      body: String(r.Body || ''), priority: String(r.Priority || ''),
+      target: String(r.Target || ''), date: String(r.Date || ''),
+      expiry: String(r.Expiry || ''), postedBy: String(r.PostedBy || '')
+    };
+  }).reverse();
+  return { success:true, data:{ notices: notices } };
+}
+
+function deleteNotice(p){
+  var school = String(p.school || '').trim();
+  var id = String(p.id || '').trim();
+  var sh = noticesSheetFor_(school);
+  var row = findRow_(sh, 0, id);
+  if(row > 0) sh.deleteRow(row);
+  return { success:true };
+}
+
+function programSheetFor_(school){
+  var book = accountsSheet_();
+  var name = 'PRG_' + safeId_(school);
+  var sh = book.getSheetByName(name);
+  if(!sh){
+    sh = book.insertSheet(name);
+    sh.appendRow(['ID','Date','Title','Category','Description','Timestamp']);
+  }
+  return sh;
+}
+
+function saveProgramItem(p){
+  var school = String(p.school || '').trim();
+  var it = {};
+  try { it = JSON.parse(p.item || '{}'); } catch(e){}
+  if(!school || !it.title || !it.date) return { success:false, message:'Missing fields.' };
+  var sh = programSheetFor_(school);
+  var id = 'PRG-' + Date.now();
+  sh.appendRow([id, it.date, it.title, it.category || 'other', it.description || '', new Date().toISOString()]);
+  return { success:true, data:{ id: id } };
+}
+
+function getProgram(p){
+  var school = String(p.school || '').trim();
+  if(!school) return { success:false, message:'School required.' };
+  var sh = programSheetFor_(school);
+  var rows = sheetToObjects_(sh);
+  var items = rows.map(function(r){
+    return {
+      id: String(r.ID || ''), date: String(r.Date || ''),
+      title: String(r.Title || ''), category: String(r.Category || ''),
+      description: String(r.Description || '')
+    };
+  });
+  return { success:true, data:{ items: items } };
+}
+
+function deleteProgramItem(p){
+  var school = String(p.school || '').trim();
+  var id = String(p.id || '').trim();
+  var sh = programSheetFor_(school);
+  var row = findRow_(sh, 0, id);
+  if(row > 0) sh.deleteRow(row);
+  return { success:true };
+}
+
+function timetableSheetFor_(school){
+  var book = accountsSheet_();
+  var name = 'TT_' + safeId_(school);
+  var sh = book.getSheetByName(name);
+  if(!sh){
+    sh = book.insertSheet(name);
+    sh.appendRow(['Day','Slot','Class','Subject','Teacher','Room','Term','Year','Timestamp']);
+  }
+  return sh;
+}
+
+function saveTimetable(p){
+  var school = String(p.school || '').trim();
+  var period = {};
+  try { period = JSON.parse(p.period || '{}'); } catch(e){}
+  if(!school || !period.subject) return { success:false, message:'Missing fields.' };
+  var sh = timetableSheetFor_(school);
+  sh.appendRow([
+    period.day || '', period.slot || '', p.className || '',
+    period.subject || '', period.teacher || '', period.room || '',
+    p.term || 'III', p.year || '2026', new Date().toISOString()
+  ]);
+  return { success:true };
+}
+
+function getTimetable(p){
+  var school = String(p.school || '').trim();
+  var className = String(p.className || '').trim();
+  var term = String(p.term || 'III');
+  var year = String(p.year || '2026');
+  if(!school) return { success:false, message:'School required.' };
+  var sh = timetableSheetFor_(school);
+  var rows = sheetToObjects_(sh);
+  var periods = rows.filter(function(r){
+    return String(r.Class) === className && String(r.Term) === term && String(r.Year) === year;
+  }).map(function(r){
+    return {
+      day: String(r.Day || ''), slot: String(r.Slot || ''),
+      subject: String(r.Subject || ''), teacher: String(r.Teacher || ''),
+      room: String(r.Room || '')
+    };
+  });
+  return { success:true, data:{ periods: periods } };
+}
+
+function clearTimetable(p){
+  var school = String(p.school || '').trim();
+  var className = String(p.className || '').trim();
+  var term = String(p.term || 'III');
+  var year = String(p.year || '2026');
+  var sh = timetableSheetFor_(school);
+  var data = sh.getDataRange().getValues();
+  for(var r=data.length-1; r>=1; r--){
+    if(String(data[r][2]) === className && String(data[r][6]) === term && String(data[r][7]) === year){
+      sh.deleteRow(r+1);
+    }
+  }
+  return { success:true };
+}
+
+// ============================================================
+// CHAT
+// ============================================================
+function chatSheetFor_(school){
+  var book = accountsSheet_();
+  var name = 'CHAT_' + safeId_(school);
+  var sh = book.getSheetByName(name);
+  if(!sh){
+    sh = book.insertSheet(name);
+    sh.appendRow(['From','To','Message','Time','Timestamp']);
+  }
+  return sh;
+}
+
+function getChatUsers(p){
+  var school = String(p.school || '').trim();
+  var sh = accountsSheet_().getSheetByName(TAB_ACCOUNTS);
+  if(!sh) return { success:true, data:{ users: [] } };
+  var rows = sheetToObjects_(sh);
+  var users = rows.filter(function(r){
+    return String(r.School) === school && String(r.Role || '').toLowerCase() !== 'parent'
+      && String(r.Active || 'true').toLowerCase() !== 'false';
+  }).map(function(r){
+    return {
+      username: String(r.Username || ''),
+      name: String(r.Name || ''),
+      role: String(r.Role || '')
+    };
+  });
+  return { success:true, data:{ users: users } };
+}
+
+function saveChatMessage(p){
+  var school = String(p.school || '').trim();
+  var from = String(p.from || '').trim();
+  var to = String(p.to || '').trim();
+  var msg = String(p.message || '');
+  if(!school || !from || !to || !msg) return { success:false, message:'Missing fields.' };
+  var sh = chatSheetFor_(school);
+  sh.appendRow([from, to, msg, p.time || '', new Date().toISOString()]);
+  return { success:true };
+}
+
+function getChatMessages(p){
+  var school = String(p.school || '').trim();
+  var u1 = String(p.user1 || '').trim();
+  var u2 = String(p.user2 || '').trim();
+  if(!school || !u1 || !u2) return { success:false, message:'Missing fields.' };
+  var sh = chatSheetFor_(school);
+  var rows = sheetToObjects_(sh);
+  var messages = rows.filter(function(r){
+    var a = String(r.From), b = String(r.To);
+    return (a === u1 && b === u2) || (a === u2 && b === u1);
+  }).map(function(r){
+    return { from: String(r.From), to: String(r.To), message: String(r.Message), time: String(r.Time) };
+  });
+  return { success:true, data:{ messages: messages } };
+}
+
+// ============================================================
+// ACCOUNTS (create / list / delete)
+// ============================================================
+function createUserAccount(p){
+  var school = String(p.school || '').trim();
+  var username = String(p.username || '').trim().toLowerCase();
+  var password = String(p.password || '');
+  var name = String(p.name || '').trim();
+  var role = String(p.role || 'teacher').toLowerCase();
+
+  if(!school || !username || !password || !name) return { success:false, message:'Missing fields.' };
+
+  var sh = accountsSheet_().getSheetByName(TAB_ACCOUNTS);
+  if(!sh) return { success:false, message:'Accounts sheet missing.' };
+
+  var rows = sheetToObjects_(sh);
+  for(var i=0;i<rows.length;i++){
+    if(String(rows[i].Username).toLowerCase() === username && String(rows[i].School) === school){
+      return { success:false, message:'Username exists for this school.' };
+    }
+  }
+
+  sh.appendRow([
+    username, password, name, role, school,
+    p.staffId || '', p.phone || '', p.email || '', p.qualifications || '',
+    Number(p.salary || 0), p.assignments || '[]', p.otherRoles || '[]',
+    true, new Date().toISOString(), p.childId || ''
+  ]);
+
+  return { success:true };
+}
+
+function getAllAccounts(p){
+  var school = String(p.school || '').trim();
+  var sh = accountsSheet_().getSheetByName(TAB_ACCOUNTS);
+  if(!sh) return { success:true, data:{ accounts: [] } };
+  var rows = sheetToObjects_(sh);
+  var accounts = rows.filter(function(r){ return String(r.School) === school; })
+    .map(function(r){
+      return {
+        username: String(r.Username || ''),
+        name: String(r.Name || ''),
+        role: String(r.Role || ''),
+        staffId: String(r.StaffID || ''),
+        phone: String(r.Phone || ''),
+        email: String(r.Email || ''),
+        salary: Number(r.Salary || 0),
+        assignments: String(r.Assignments || '[]'),
+        otherRoles: String(r.OtherRoles || '[]'),
+        active: String(r.Active || 'true')
+      };
+    });
+  return { success:true, data:{ accounts: accounts } };
+}
+
+function deleteAccount(p){
+  var school = String(p.school || '').trim();
+  var username = String(p.username || '').trim();
+  var sh = accountsSheet_().getSheetByName(TAB_ACCOUNTS);
+  if(!sh) return { success:false, message:'Accounts sheet missing.' };
+  var values = sh.getDataRange().getValues();
+  for(var r=values.length-1; r>=1; r--){
+    if(String(values[r][0]) === username && String(values[r][4]) === school){
+      sh.deleteRow(r+1);
+    }
+  }
+  return { success:true };
+}
+
+function getTeacherAccount(p){
+  var school = String(p.school || '').trim();
+  var username = String(p.username || '').trim();
+  var sh = accountsSheet_().getSheetByName(TAB_ACCOUNTS);
+  if(!sh) return { success:false, message:'Accounts sheet missing.' };
+  var rows = sheetToObjects_(sh);
+  var match = null;
+  rows.forEach(function(r){
+    if(String(r.Username) === username && String(r.School) === school) match = r;
+  });
+  if(!match) return { success:false, message:'Account not found.' };
+  return {
+    success:true,
+    data:{ account:{
+      username: String(match.Username||''), name: String(match.Name||''),
+      role: String(match.Role||''), salary: Number(match.Salary||0),
+      otherRoles: String(match.OtherRoles||'[]'),
+      assignments: String(match.Assignments||'[]')
+    }}
+  };
+}
+
+function updateTeacherProfile(p){
+  var school = String(p.school || '').trim();
+  var username = String(p.username || '').trim();
+  var updates = {};
+  try { updates = JSON.parse(p.updates || '{}'); } catch(e){}
+  var sh = accountsSheet_().getSheetByName(TAB_ACCOUNTS);
+  if(!sh) return { success:false, message:'Accounts sheet missing.' };
+  var values = sh.getDataRange().getValues();
+  var headers = values[0].map(function(h){ return String(h); });
+  var idxPhone = headers.indexOf('Phone');
+  var idxEmail = headers.indexOf('Email');
+  var idxQual  = headers.indexOf('Qualifications');
+  for(var r=1; r<values.length; r++){
+    if(String(values[r][0]) === username && String(values[r][4]) === school){
+      if(idxPhone >= 0 && updates.phone !== undefined) sh.getRange(r+1, idxPhone+1).setValue(updates.phone);
+      if(idxEmail >= 0 && updates.email !== undefined) sh.getRange(r+1, idxEmail+1).setValue(updates.email);
+      if(idxQual  >= 0 && updates.qualifications !== undefined) sh.getRange(r+1, idxQual+1).setValue(updates.qualifications);
+      return { success:true };
+    }
+  }
+  return { success:false, message:'Account not found.' };
+}
+
+// ============================================================
+// SCHOOL SETTINGS
+// ============================================================
+function settingsSheetFor_(school){
+  var book = accountsSheet_();
+  var name = 'SET_' + safeId_(school);
+  var sh = book.getSheetByName(name);
+  if(!sh){
+    sh = book.insertSheet(name);
+    sh.appendRow(['Key','Value']);
+  }
+  return sh;
+}
+
+function getSchoolSettings(p){
+  var school = String(p.school || '').trim();
+  if(!school) return { success:false, message:'School required.' };
+  var sh = settingsSheetFor_(school);
+  var rows = sheetToObjects_(sh);
+  var settings = {};
+  rows.forEach(function(r){
+    var k = String(r.Key || ''); if(k) settings[k] = String(r.Value || '');
+  });
+  return { success:true, data:{ settings: settings } };
+}
+
+function saveSchoolSettings(p){
+  var school = String(p.school || '').trim();
+  var settings = {};
+  try { settings = JSON.parse(p.settings || '{}'); } catch(e){}
+  if(!school) return { success:false, message:'School required.' };
+  var sh = settingsSheetFor_(school);
+  Object.keys(settings).forEach(function(k){
+    var v = settings[k];
+    var row = findRow_(sh, 0, k);
+    if(row > 0) sh.getRange(row, 2).setValue(v);
+    else sh.appendRow([k, v]);
+  });
+  return { success:true };
+}
+
+// ============================================================
+// DRIVE FOLDERS + PHOTOS + SIGNATURES
+// ============================================================
+function ensureDriveFolders(p){
+  var school = String(p.school || '').trim();
+  if(!school) return { success:false, message:'School required.' };
+
+  var root = getOrCreateFolder_(DriveApp.getRootFolder(), ROOT_DRIVE_FOLDER_NAME);
+  var schoolFolder = getOrCreateFolder_(root, school);
+  var subs = ['P.1','P.2','P.3','P.4','P.5','P.6','P.7','Staff','Signatures','School Badge'];
+  var folders = {};
+  subs.forEach(function(n){ folders[n] = folderInfo_(getOrCreateFolder_(schoolFolder, n)); });
+
+  return {
+    success:true,
+    data:{
+      root: folderInfo_(root),
+      schoolFolder: folderInfo_(schoolFolder),
+      folders: folders
+    }
+  };
+}
+
+function getOrCreateFolder_(parent, name){
+  var it = parent.getFoldersByName(name);
+  if(it.hasNext()) return it.next();
+  return parent.createFolder(name);
+}
+
+function folderInfo_(f){
+  return { name: f.getName(), url: f.getUrl(), id: f.getId() };
+}
+
+function uploadPhoto(p){
+  var school = String(p.school || '').trim();
+  var className = String(p.className || 'Staff').trim();
+  var id = String(p.id || '').trim();
+  var name = String(p.name || '').trim();
+  var base64 = String(p.base64 || '');
+  var mime = String(p.mimeType || 'image/jpeg');
+  if(!school || !id || !base64) return { success:false, message:'Missing fields.' };
+
+  var root = getOrCreateFolder_(DriveApp.getRootFolder(), ROOT_DRIVE_FOLDER_NAME);
+  var schoolFolder = getOrCreateFolder_(root, school);
+  var classFolder = getOrCreateFolder_(schoolFolder, className);
+
+  var data = base64.indexOf(',') > -1 ? base64.split(',')[1] : base64;
+  var blob = Utilities.newBlob(Utilities.base64Decode(data), mime, id + '.jpg');
+  var file = classFolder.createFile(blob);
+
+  // Store in Photos tab of the class sheet
+  var links = getClassLinks({school: school}).data.links || [];
+  var link = links.find(function(l){ return l.className === className; });
+  if(link && link.sheetId){
+    var sh = getOrCreateSheet_(ss_(link.sheetId), 'Photos', ['ID','Name','URL','UpdatedAt']);
+    var row = findRow_(sh, 0, id);
+    if(row > 0) sh.getRange(row, 1, 1, 4).setValues([[id, name, file.getUrl(), new Date().toISOString()]]);
+    else sh.appendRow([id, name, file.getUrl(), new Date().toISOString()]);
+  }
+
+  return { success:true, data:{ url: file.getUrl(), id: file.getId() } };
+}
+
+function deletePhoto(p){
+  var school = String(p.school || '').trim();
+  var className = String(p.className || '').trim();
+  var id = String(p.id || '').trim();
+  if(!school || !className || !id) return { success:false, message:'Missing fields.' };
+
+  var links = getClassLinks({school: school}).data.links || [];
+  var link = links.find(function(l){ return l.className === className; });
+  if(link && link.sheetId){
+    var sh = ss_(link.sheetId).getSheetByName('Photos');
+    if(sh){
+      var row = findRow_(sh, 0, id);
+      if(row > 0) sh.deleteRow(row);
+    }
+  }
+
+  // delete the Drive file if we can find it
+  try {
+    var root = DriveApp.getRootFolder();
+    var rootIter = root.getFoldersByName(ROOT_DRIVE_FOLDER_NAME);
+    if(rootIter.hasNext()){
+      var schoolIter = rootIter.next().getFoldersByName(school);
+      if(schoolIter.hasNext()){
+        var classIter = schoolIter.next().getFoldersByName(className);
+        if(classIter.hasNext()){
+          var files = classIter.next().getFilesByName(id + '.jpg');
+          while(files.hasNext()) files.next().setTrashed(true);
+        }
+      }
+    }
+  } catch(e){}
+
+  return { success:true };
+}
+
+function getPhotosForClass(p){
+  var school = String(p.school || '').trim();
+  var className = String(p.className || '').trim();
+  if(!school || !className) return { success:false, message:'Missing fields.' };
+
+  var links = getClassLinks({school: school}).data.links || [];
+  var link = links.find(function(l){ return l.className === className; });
+  var byId = {}, byName = {};
+  if(link && link.sheetId){
+    var sh = ss_(link.sheetId).getSheetByName('Photos');
+    if(sh){
+      sheetToObjects_(sh).forEach(function(r){
+        var rid = String(r.ID || ''); var rurl = String(r.URL || '');
+        var rname = String(r.Name || '');
+        if(rid && rurl) byId[rid] = rurl;
+        if(rname && rurl) byName[normaliseName_(rname)] = rurl;
+      });
+    }
+  }
+  return { success:true, data:{ byId: byId, byName: byName } };
+}
+
+function normaliseName_(s){
+  return String(s||'').toLowerCase().replace(/[\s._-]+/g,'');
+}
+
+function uploadSchoolBadge(p){
+  var school = String(p.school || '').trim();
+  var base64 = String(p.base64 || '');
+  var mime = String(p.mimeType || 'image/png');
+  if(!school || !base64) return { success:false, message:'Missing fields.' };
+
+  var root = getOrCreateFolder_(DriveApp.getRootFolder(), ROOT_DRIVE_FOLDER_NAME);
+  var schoolFolder = getOrCreateFolder_(root, school);
+  var badgeFolder = getOrCreateFolder_(schoolFolder, 'School Badge');
+
+  var data = base64.indexOf(',') > -1 ? base64.split(',')[1] : base64;
+  var blob = Utilities.newBlob(Utilities.base64Decode(data), mime, 'badge.png');
+  var file = badgeFolder.createFile(blob);
+
+  var sh = settingsSheetFor_(school);
+  var row = findRow_(sh, 0, 'School Badge URL');
+  if(row > 0) sh.getRange(row, 2).setValue(file.getUrl());
+  else sh.appendRow(['School Badge URL', file.getUrl()]);
+
+  return { success:true, data:{ url: file.getUrl() } };
+}
+
+function uploadSignature(p){
+  var school = String(p.school || '').trim();
+  var kind = String(p.kind || 'head').trim(); // 'head' | 'class'
+  var className = String(p.className || '').trim();
+  var base64 = String(p.base64 || '');
+  var mime = String(p.mimeType || 'image/png');
+  if(!school || !base64) return { success:false, message:'Missing fields.' };
+
+  var root = getOrCreateFolder_(DriveApp.getRootFolder(), ROOT_DRIVE_FOLDER_NAME);
+  var schoolFolder = getOrCreateFolder_(root, school);
+  var sigFolder = getOrCreateFolder_(schoolFolder, 'Signatures');
+  var filename = kind === 'class' && className ? (className + '_sig.png') : 'head_sig.png';
+  var data = base64.indexOf(',') > -1 ? base64.split(',')[1] : base64;
+  var blob = Utilities.newBlob(Utilities.base64Decode(data), mime, filename);
+  var file = sigFolder.createFile(blob);
+
+  var sh = settingsSheetFor_(school);
+  var key = kind === 'class' ? ('Class Signature URL ' + className) : 'Head Signature URL';
+  var row = findRow_(sh, 0, key);
+  if(row > 0) sh.getRange(row, 2).setValue(file.getUrl());
+  else sh.appendRow([key, file.getUrl()]);
+
+  return { success:true, data:{ url: file.getUrl() } };
+}
