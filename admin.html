@@ -202,7 +202,7 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 .mini-report-card .photo-placeholder img{width:100%;height:100%;object-fit:cover}
 .mini-report-card .student-name{text-align:center;font-size:19px;font-weight:700;color:#1a3b5c;text-transform:uppercase}
 .mini-report-card .student-meta{display:flex;justify-content:center;flex-wrap:wrap;gap:4px 12px;font-size:11px;color:#555;margin-bottom:8px}
-.mini-report-card .average-row{display:flex;justify-content:space-between;font-size:15px;font-weight:700;margin-top:6px;margin-bottom:10px;padding:0 4px;border-top:1px solid #e0e0e0;padding-top:8px}
+.mini-report-card .average-row{display:flex;justify-content:space-between;font-size:14px;font-weight:700;margin-top:6px;margin-bottom:10px;padding:0 4px;border-top:1px solid #e0e0e0;padding-top:8px}
 .mini-report-card .status-bar{background:#e2e8f0;border-radius:20px;padding:7px 14px;text-align:center;font-size:13px;font-weight:700;color:#1a3b5c;margin-bottom:12px}
 .mini-report-card .status-bar.outstanding{background:#dbeafe;color:#1e3a8a}
 .mini-report-card .status-bar.no-data{background:#e2e8f0;color:#4b5563}
@@ -218,8 +218,6 @@ body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-g
 a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--primary);outline-offset:2px;border-radius:4px}
 @media print{.generated-document,.mini-report-card{break-inside:avoid;page-break-after:always;box-shadow:none!important;border:1px solid #000!important}.no-print,.btn,.navbar,.bottom-nav,.report-print-btn,.report-select-cb{display:none!important}body{background:#fff!important;padding:0!important}.container{box-shadow:none!important;padding:0!important}@page{size:A4;margin:6mm}}
 .a4-report{width:190mm;min-height:auto;margin:0 auto;padding:8mm;box-sizing:border-box;background:#fff;display:flex;flex-direction:column;justify-content:flex-start;font-size:13px}
-.a4-report.alevel-report{font-size:15px}
-.a4-report.alevel-report table{font-size:14px}
 .assign-row{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;margin-bottom:8px}
 .assign-list{background:#f8f9fa;border:1px solid var(--border);border-radius:8px;padding:8px;min-height:40px;font-size:13px}
 .assign-chip{display:flex;justify-content:space-between;align-items:center;padding:6px 8px;background:#fff;border-radius:6px;margin-bottom:4px;border:1px solid #e0e0e0}
@@ -371,7 +369,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 <!-- SCORES -->
 <div id="tabScores" class="form-section">
   <h2 class="section-title"><i class="fas fa-edit" style="color:var(--primary)"></i> Post Subject Scores</h2>
-  <div class="info-box"><div class="info-title">📌 Score Conversion</div><div class="info-text">Primary (P.1–P.7) uses <strong>BOT (Beginning of Term)</strong> and <strong>MOT (Mid of Term)</strong> and <strong>EOT (End of Term)</strong>. All scores are out of 100.</div></div>
+  <div class="info-box"><div class="info-title">📌 Score Entry</div><div class="info-text">Enter BOT, MOT and EOT scores. All are out of 100 by default (change max marks if needed).</div></div>
   <form id="scoresForm" onsubmit="postScores(event)">
     <div class="form-group"><label>Select Class *</label><select id="scoreClassSelect" onchange="updateScoreClassInfo(); updateScoreEntryMode()"><option value="">Select a Class</option></select></div>
     <div class="info-box"><div class="info-title">📌 Class</div><div class="info-text" id="scoreClassInfo">Select a class</div><div id="levelDisplay" style="font-size:11px;color:var(--text-3);margin-top:3px"></div></div>
@@ -724,8 +722,6 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
       <div style="padding:10px;background:#fff;border-radius:8px"><label style="font-size:12px;font-weight:600">💰 Finance</label><input type="text" id="settingsFinanceSheet" style="width:100%;padding:8px;border:2px solid var(--border);border-radius:6px;margin-top:4px" /></div>
       <div style="padding:10px;background:#fff;border-radius:8px"><label style="font-size:12px;font-weight:600">📋 Attendance</label><input type="text" id="settingsAttendanceSheet" style="width:100%;padding:8px;border:2px solid var(--border);border-radius:6px;margin-top:4px" /></div>
       <div style="padding:10px;background:#fff;border-radius:8px"><label style="font-size:12px;font-weight:600">📅 Timetable/Notices/Program</label><input type="text" id="settingsTimetableSheet" style="width:100%;padding:8px;border:2px solid var(--border);border-radius:6px;margin-top:4px" /></div>
-      <div style="padding:10px;background:#fff;border-radius:8px"><label style="font-size:12px;font-weight:600">📦 Store</label><input type="text" id="settingsStoreSheet" style="width:100%;padding:8px;border:2px solid var(--border);border-radius:6px;margin-top:4px" /></div>
-      <div style="padding:10px;background:#fff;border-radius:8px"><label style="font-size:12px;font-weight:600">🏥 Nurse</label><input type="text" id="settingsNurseSheet" style="width:100%;padding:8px;border:2px solid var(--border);border-radius:6px;margin-top:4px" /></div>
     </div>
   </div>
   <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px">
@@ -759,6 +755,23 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
     </div>
   </div>
   <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px">
+    <h4 style="color:var(--primary);font-size:14px;margin-bottom:10px">📝 Exams Included in Reports</h4>
+    <div style="padding:14px;background:var(--surface-2);border-radius:var(--radius-md)">
+      <p style="font-size:12px;color:var(--text-2);margin-bottom:10px">
+        Choose which assessments are shown on report cards. Schools doing only MOT &amp; EOT can turn off BOT.
+      </p>
+      <label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:13px;font-weight:600">
+        <input type="checkbox" id="examIncludeBOT" checked /> Include BOT
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:13px;font-weight:600">
+        <input type="checkbox" id="examIncludeMOT" checked /> Include MOT
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600">
+        <input type="checkbox" id="examIncludeEOT" checked /> Include EOT
+      </label>
+    </div>
+  </div>
+  <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px">
     <h4 style="color:var(--primary);font-size:14px;margin-bottom:10px">📚 Class Google Sheets</h4>
     <div style="display:grid;grid-template-columns:1fr;gap:12px;padding:14px;background:var(--surface-2);border-radius:var(--radius-md)">
       <div style="padding:10px;background:#fff;border-radius:8px"><label style="font-size:12px">P.1</label><input type="text" id="classS1" placeholder="Google Sheet URL" onchange="validateClassLink('P.1')" style="width:100%;padding:8px;border:2px solid var(--border);border-radius:6px;margin-top:4px" /><span style="font-size:11px" id="statusS1">⏳ Not configured</span></div>
@@ -773,7 +786,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
   <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px">
     <h4 style="color:var(--primary);font-size:14px;margin-bottom:10px">📁 Google Drive Photo Storage</h4>
     <div style="background:var(--surface-2);padding:14px;border-radius:var(--radius-md)">
-      <p style="font-size:12px;color:var(--text-2);margin-bottom:10px">Photos are stored in <strong>EduTrack Pro/&lt;Your School&gt;/{P.1..P.7, Staff, Signatures, School Badge}</strong>.</p>
+      <p style="font-size:12px;color:var(--text-2);margin-bottom:10px">Photos are stored in <strong>EduTrack Pro Primary/&lt;Your School&gt;/{P.1..P.7, Staff, Signatures, School Badge}</strong>.</p>
       <button class="btn btn-info btn-sm" onclick="ensureDriveFoldersUI()">🛠️ Ensure Folder Structure</button>
       <div id="driveFoldersResult" style="margin-top:10px;font-size:13px"></div>
     </div>
@@ -895,17 +908,14 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 
 <script>
 /* ============================================================
-   EduTrack Pro Admin v33.0 — Primary School Edition (Uganda)
+   EduTrack Pro Admin v34.0 — PRIMARY (Uganda)
    ============================================================ */
-var APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbz_kjgyku3Ki1rxHFLPfEbVvOtcRtbNA0iSS-f3q16xIp9MDOBgK7niraEuwyuAN6R7/exec';
+var APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbx1aWc5Pec1sbFrajSnQFKo3QrwMZa-u5o34xr0PcdYE1u7d-hfgRBm2C2a5mVOaTqsjQ/exec';
 var FACE_CONFIG={modelPath:'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/',recognitionThreshold:0.55,storageKey:'registeredFaces',attendanceKey:'attendanceRecords'};
 var FACE_DETECTION_OPTIONS=null;
-/* Primary school subjects */
 var SUBJECT_CODES={'English':'ENG','Mathematics':'MTC','Science':'SCI','Social Studies':'SST','Religious Education':'RE','Luganda':'LUG','Kiswahili':'KIS','Local Language':'LL','Reading':'REA','Writing':'WRI','Physical Education':'PE','Music':'MUS','Art and Craft':'ART','Agriculture':'AGR','Computer Studies':'CMP'};
 var CLASSES=['P.1','P.2','P.3','P.4','P.5','P.6','P.7'];
 var CLASS_IDS={'P.1':'classS1','P.2':'classS2','P.3':'classS3','P.4':'classS4','P.5':'classS5','P.6':'classS6','P.7':'classS7'};
-var OLEVEL_CLASSES=[];
-var ALEVEL_CLASSES=[];
 var ROLE_NAMES={'admin':'Admin','teacher':'Teacher','bursar':'Bursar','gateman':'Gate Man','parent':'Parent','nurse':'Nurse','storekeeper':'Storekeeper'};
 var LOGIN_URL='https://edutok-ug.github.io/edutrack2/index.html';
 
@@ -922,8 +932,6 @@ var feesRecords=[],expenseRecords=[],chatUsers=[];
 var faceState={modelsLoaded:false,modelsLoading:false,faceDetected:false};
 var qrStream=null,qrScanInterval=null,qrScanHistory=[],qrLastScanTime=0;
 var pendingAssignments=[];
-
-/* CLASS-SCOPED photo cache: PHOTO_CACHE.byClass['P.1'] = {byId, byName} */
 var PHOTO_CACHE = { byClass:{}, loading:{} };
 var __classPhotos = [];
 
@@ -933,6 +941,41 @@ function getCurrentTime(){return new Date().toLocaleTimeString();}
 function escapeHtml(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
 function subjectCodeFor(n){return SUBJECT_CODES[n]||'—';}
 function normalizeNameKey(name){return String(name||'').toLowerCase().replace(/[\s._-]+/g,'');}
+
+function primaryGradeFromPct(pct){
+  if(pct >= 80) return 'D1';
+  if(pct >= 70) return 'D2';
+  if(pct >= 60) return 'C3';
+  if(pct >= 50) return 'C4';
+  if(pct >= 40) return 'P5';
+  if(pct >= 30) return 'P6';
+  if(pct >= 20) return 'P7';
+  if(pct >= 10) return 'F8';
+  return 'F9';
+}
+function primaryGradeToAggregate(g){
+  var map={'D1':1,'D2':2,'C3':3,'C4':4,'P5':5,'P6':6,'P7':7,'F8':8,'F9':9};
+  return map[g]||0;
+}
+function divisionFromAggregates(aggs){
+  if(!aggs || aggs.length===0) return '—';
+  var total=aggs.reduce(function(a,b){return a+b;},0);
+  var avg=total/aggs.length;
+  if(avg<=2.0) return 'I';
+  if(avg<=3.0) return 'II';
+  if(avg<=4.5) return 'III';
+  if(avg<=6.0) return 'IV';
+  return 'U';
+}
+function divisionRoman(d){return {'I':'I','II':'II','III':'III','IV':'IV','U':'U'}[d]||d||'—';}
+function remarkFromAverage(avg){
+  if(avg>=80) return 'Excellent';
+  if(avg>=70) return 'Very Good';
+  if(avg>=60) return 'Good';
+  if(avg>=50) return 'Fair';
+  if(avg>=40) return 'Improve';
+  return 'Double Your Efforts';
+}
 
 function showToast(msg,type){
   type=type||'info';
@@ -969,15 +1012,13 @@ function getActiveSchool(){return authSession?authSession.school:'';}
 function extractSheetIdFromUrl(url){if(!url)return '';var m=url.match(/\/d\/([a-zA-Z0-9-_]+)/);if(m)return m[1];if(/^[a-zA-Z0-9-_]{30,}$/.test(url))return url;return '';}
 function getClassLink(cls){try{var s=getActiveSchool();if(!s)return '';return localStorage.getItem('classLink_'+cls+'_'+s)||'';}catch(e){return '';}}
 function getClassSheetId(cls){return extractSheetIdFromUrl(getClassLink(cls));}
-function isOLevelClass(cls){return false;}
-function isALevelClass(cls){return false;}
 
 function getRegisteredFaces(){try{return JSON.parse(localStorage.getItem(FACE_CONFIG.storageKey)||'[]');}catch(e){return[];}}
 function saveRegisteredFaces(r){localStorage.setItem(FACE_CONFIG.storageKey,JSON.stringify(r));}
 function getAttendanceRecords(){try{return JSON.parse(localStorage.getItem(FACE_CONFIG.attendanceKey)||'[]');}catch(e){return[];}}
 function saveAttendanceRecords(r){localStorage.setItem(FACE_CONFIG.attendanceKey,JSON.stringify(r));}
 
-/* ============ CLASS-SCOPED PHOTO CACHE ============ */
+/* ============ PHOTO CACHE ============ */
 async function loadClassPhotosIntoCache(className){
   className=String(className||'').trim();
   if(!className) return;
@@ -1064,34 +1105,14 @@ function getSchoolBranding(){
     badge:s.schoolBadgeUrl||'',
     signature:s.headSignatureUrl||'',
     termStartDate:s.termStartDate||'',
-    termEndDate:s.termEndDate||''
+    termEndDate:s.termEndDate||'',
+    examIncludeBOT: s.examIncludeBOT===undefined ? true : (s.examIncludeBOT===true||s.examIncludeBOT==='true'),
+    examIncludeMOT: s.examIncludeMOT===undefined ? true : (s.examIncludeMOT===true||s.examIncludeMOT==='true'),
+    examIncludeEOT: s.examIncludeEOT===undefined ? true : (s.examIncludeEOT===true||s.examIncludeEOT==='true')
   };
 }
 function getCustomTeacherComment(){var school=getActiveSchool();try{return JSON.parse(localStorage.getItem('schoolSettings_'+school)||'{}').teacherCustomComment||'';}catch(e){return '';}}
 function getCustomHeadComment(){var school=getActiveSchool();try{return JSON.parse(localStorage.getItem('schoolSettings_'+school)||'{}').headCustomComment||'';}catch(e){return '';}}
-
-/* Primary school grading: D1, D2, C3, C4, P5, P6, P7, F8, F9 */
-function gradeFromPercentage(pct){
-  var a=parseFloat(document.getElementById('gradeA')?.value)||80;
-  var b=parseFloat(document.getElementById('gradeB')?.value)||70;
-  var c=parseFloat(document.getElementById('gradeC')?.value)||60;
-  var d=parseFloat(document.getElementById('gradeD')?.value)||50;
-  var e=parseFloat(document.getElementById('gradeE')?.value)||40;
-  var f=parseFloat(document.getElementById('gradeF')?.value)||30;
-  var g=parseFloat(document.getElementById('gradeG')?.value)||20;
-  var h=parseFloat(document.getElementById('gradeH')?.value)||10;
-  if(pct>=a)return 'D1';if(pct>=b)return 'D2';if(pct>=c)return 'C3';if(pct>=d)return 'C4';
-  if(pct>=e)return 'P5';if(pct>=f)return 'P6';if(pct>=g)return 'P7';if(pct>=h)return 'F8';return 'F9';
-}
-function descriptorFromGrade(g){
-  return{'D1':'EXCEPTIONAL','D2':'OUTSTANDING','C3':'SATISFACTORY','C4':'SATISFACTORY','P5':'BASIC','P6':'BASIC','P7':'ELEMENTARY','F8':'ELEMENTARY','F9':'ELEMENTARY'}[g]||'ELEMENTARY';
-}
-function generateAutoComment(pct){
-  if(pct>=80)return 'EXCEPTIONAL';if(pct>=70)return 'OUTSTANDING';
-  if(pct>=60)return 'SATISFACTORY';if(pct>=50)return 'SATISFACTORY';
-  if(pct>=40)return 'BASIC';return 'ELEMENTARY';
-}
-function gradeToPoints(g){return{'D1':9,'D2':8,'C3':7,'C4':6,'P5':5,'P6':4,'P7':3,'F8':2,'F9':1}[g]||0;}
 
 function qrToImage(el){if(!el)return '';var c=el.querySelector('canvas');if(c){try{return c.toDataURL('image/png');}catch(e){return '';}}var i=el.querySelector('img');if(i&&i.src)return i.src;return '';}
 function materializeQRCodes(root){
@@ -1164,17 +1185,18 @@ async function refreshBrandingFromSheet(){
         schoolName:raw['School Name']||'',schoolMotto:raw['Motto']||'',
         schoolAddress:raw['Address']||'',schoolPhone:raw['Phone']||'',
         schoolEmail:raw['Email']||'',schoolWebsite:raw['Website']||'',
-        latitude:raw['Latitude']||'',longitude:raw['Longitude']||'',
         currentTerm:raw['Current Term']||'',currentYear:raw['Current Year']||'',
         expectedFeesThisTerm:raw['Expected Fees']||'',
         termStartDate:raw['Term Start']||'',termEndDate:raw['Term End']||'',
         nextTermStart:raw['Next Term Start']||'',nextTermEnd:raw['Next Term End']||'',
         financeSheet:raw['Finance Sheet']||'',attendanceSheet:raw['Attendance Sheet']||'',
-        timetableSheet:raw['Timetable Sheet']||'',storeSheet:raw['Store Sheet']||'',
-        nurseSheet:raw['Nurse Sheet']||'',
+        timetableSheet:raw['Timetable Sheet']||'',
         gradeA:raw['Grade A']||80,gradeB:raw['Grade B']||70,
         gradeC:raw['Grade C']||60,gradeD:raw['Grade D']||50,gradeE:raw['Grade E']||40,
         gradeF:raw['Grade F']||30,gradeG:raw['Grade G']||20,gradeH:raw['Grade H']||10,gradeI:raw['Grade I']||0,
+        examIncludeBOT:(raw['Exam Include BOT']!=='false'),
+        examIncludeMOT:(raw['Exam Include MOT']!=='false'),
+        examIncludeEOT:(raw['Exam Include EOT']!=='false'),
         teacherCustomComment:raw['Teacher Custom Comment']||'',
         headCustomComment:raw['Head Custom Comment']||'',
         driveRoot:raw['Drive Root']||'',
@@ -1399,43 +1421,42 @@ function renderScoreTable(){
   var q=document.getElementById('scoreSearchInput')?.value?.toLowerCase()||'';
   var filtered=q?scoreRows.filter(function(s){return(s.studentId||'').toLowerCase().includes(q)||(s.studentName||'').toLowerCase().includes(q);}):scoreRows;
   if(filtered.length===0){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:#999;padding:30px">No pupils.</td></tr>';return;}
-  var showBot=true,showMot=true,showEot=true;
   var assessment=document.getElementById('assessmentPrimary')?.value||'all';
   var botMax=parseFloat(document.getElementById('botMax')?.value)||100;
   var motMax=parseFloat(document.getElementById('motMax')?.value)||100;
   var eotMax=parseFloat(document.getElementById('eotMaxPrimary')?.value)||100;
-  if(assessment==='bot'){showMot=false;showEot=false;}
-  else if(assessment==='mot'){showBot=false;showEot=false;}
-  else if(assessment==='eot'){showBot=false;showMot=false;}
+  var showBot=(assessment==='all'||assessment==='bot');
+  var showMot=(assessment==='all'||assessment==='mot');
+  var showEot=(assessment==='all'||assessment==='eot');
   var h='';
   filtered.forEach(function(s){
-    var idx=scoreRows.indexOf(s),bot=s.bot||'',mot=s.mot||'',eot=s.eot||'';
+    var idx=scoreRows.indexOf(s),b=s.bot||'',m=s.mot||'',e=s.eot||'';
     h+='<tr><td style="font-weight:600;font-size:12px">'+(s.studentId||'')+'</td><td>'+(s.studentName||'')+'</td>';
-    if(showBot){h+='<td><input type="number" id="bot_'+idx+'" value="'+bot+'" min="0" max="'+botMax+'" step="0.5" oninput="enforceMax(this,'+botMax+')" onchange="updateScore('+idx+')" /></td>';}
-    else{h+='<td><input type="number" id="bot_'+idx+'" value="'+bot+'" style="display:none" /><span style="color:#ccc">—</span></td>';}
-    if(showMot){h+='<td><input type="number" id="mot_'+idx+'" value="'+mot+'" min="0" max="'+motMax+'" step="0.5" oninput="enforceMax(this,'+motMax+')" onchange="updateScore('+idx+')" /></td>';}
-    else{h+='<td><input type="number" id="mot_'+idx+'" value="'+mot+'" style="display:none" /><span style="color:#ccc">—</span></td>';}
-    if(showEot){h+='<td><input type="number" id="eot_'+idx+'" value="'+eot+'" min="0" max="'+eotMax+'" step="0.5" oninput="enforceMax(this,'+eotMax+')" onchange="updateScore('+idx+')" /></td>';}
-    else{h+='<td><input type="number" id="eot_'+idx+'" value="'+eot+'" style="display:none" /><span style="color:#ccc">—</span></td>';}
+    if(showBot){h+='<td><input type="number" id="bot_'+idx+'" value="'+b+'" min="0" max="'+botMax+'" step="0.5" oninput="enforceMax(this,'+botMax+')" onchange="updateScore('+idx+')" /></td>';}
+    else{h+='<td><span style="color:#ccc">—</span></td>';}
+    if(showMot){h+='<td><input type="number" id="mot_'+idx+'" value="'+m+'" min="0" max="'+motMax+'" step="0.5" oninput="enforceMax(this,'+motMax+')" onchange="updateScore('+idx+')" /></td>';}
+    else{h+='<td><span style="color:#ccc">—</span></td>';}
+    if(showEot){h+='<td><input type="number" id="eot_'+idx+'" value="'+e+'" min="0" max="'+eotMax+'" step="0.5" oninput="enforceMax(this,'+eotMax+')" onchange="updateScore('+idx+')" /></td>';}
+    else{h+='<td><span style="color:#ccc">—</span></td>';}
     h+='<td style="font-weight:600;color:#302b63" id="avg_'+idx+'">—</td></tr>';
   });
   tbody.innerHTML=h;
 }
 function updateScore(i){
-  var bot=parseFloat(document.getElementById('bot_'+i)?.value)||0;
-  var mot=parseFloat(document.getElementById('mot_'+i)?.value)||0;
-  var eot=parseFloat(document.getElementById('eot_'+i)?.value)||0;
-  scoreRows[i].bot=bot;scoreRows[i].mot=mot;scoreRows[i].eot=eot;
-  var e=document.getElementById('avg_'+i);
-  if(e){
+  var b=parseFloat(document.getElementById('bot_'+i)?.value)||0;
+  var m=parseFloat(document.getElementById('mot_'+i)?.value)||0;
+  var e=parseFloat(document.getElementById('eot_'+i)?.value)||0;
+  scoreRows[i].bot=b;scoreRows[i].mot=m;scoreRows[i].eot=e;
+  var el=document.getElementById('avg_'+i);
+  if(el){
     var botMax=parseFloat(document.getElementById('botMax')?.value)||100;
     var motMax=parseFloat(document.getElementById('motMax')?.value)||100;
     var eotMax=parseFloat(document.getElementById('eotMaxPrimary')?.value)||100;
     var count=0,sum=0;
-    if(bot>0){sum+=(bot/botMax)*100;count++;}
-    if(mot>0){sum+=(mot/motMax)*100;count++;}
-    if(eot>0){sum+=(eot/eotMax)*100;count++;}
-    e.textContent=count>0?(sum/count).toFixed(1)+'%':'—';
+    if(b>0){sum+=(b/botMax)*100;count++;}
+    if(m>0){sum+=(m/motMax)*100;count++;}
+    if(e>0){sum+=(e/eotMax)*100;count++;}
+    el.textContent=count>0?(sum/count).toFixed(1)+'%':'—';
   }
 }
 function filterScoreRows(){renderScoreTable();}
@@ -1951,14 +1972,6 @@ async function fetchReportData(search){
     await loadClassPhotosIntoCache(cls);
     var r=await callAppsScript({action:'getAllData',sheetId:sheetId,className:cls});
     var students=r.data?.sheetData?.students||[];
-    var daysData={};
-    try{
-      var settings=JSON.parse(localStorage.getItem('schoolSettings_'+getActiveSchool())||'{}');
-      var attId=extractSheetIdFromUrl(settings.attendanceSheet||'');
-      var ar=await callAppsScript({action:'getAttendanceDays',sheetId:sheetId,className:cls,school:getActiveSchool(),attendanceSheetId:attId});
-      if(ar.success&&ar.data)daysData=ar.data.days||{};
-    }catch(e){}
-    students.forEach(function(s){s.daysAttended=daysData[s.studentId]||{present:0,absent:0,late:0,leave:0,total:0};});
     if(search){
       var q=search.toLowerCase();
       students=students.filter(function(st){return(st.studentId||'').toLowerCase().includes(q)||(st.studentName||'').toLowerCase().includes(q);});
@@ -1971,87 +1984,151 @@ async function fetchReportData(search){
 function renderReportResults(students){
   var c=document.getElementById('reportResults');if(!c)return;
   if(!students||students.length===0){c.innerHTML='<p style="color:#999;text-align:center;padding:20px">No pupils.</p>';return;}
+
   var branding=getSchoolBranding();
   var cls=document.getElementById('reportClassSelect')?.value||'';
   var term=document.getElementById('settingsTerm')?.value||'III',year=document.getElementById('settingsYear')?.value||'2026';
   var customTeacherComment=getCustomTeacherComment();
   var customHeadComment=getCustomHeadComment();
+  var includeBOT=branding.examIncludeBOT!==false;
+  var includeMOT=branding.examIncludeMOT!==false;
+  var includeEOT=branding.examIncludeEOT!==false;
+
+  // positions
+  var totals=students.map(function(s){
+    var subjects=Object.keys(s.scores||{});
+    var sum=0,count=0;
+    subjects.forEach(function(subj){
+      var sv=s.scores[subj]||{};
+      var bot=parseFloat(sv.bot)||0,mot=parseFloat(sv.mot)||0,eot=parseFloat(sv.eot)||0;
+      var used=[],denom=0;
+      if(includeBOT){used.push(bot);denom++;}
+      if(includeMOT){used.push(mot);denom++;}
+      if(includeEOT){used.push(eot);denom++;}
+      if(denom===0)return;
+      sum+=used.reduce(function(a,b){return a+b;},0)/denom;
+      count++;
+    });
+    return {studentId:s.studentId,studentName:s.studentName,overallAvg:count>0?sum/count:0};
+  });
+  totals.sort(function(a,b){return b.overallAvg-a.overallAvg;});
+  var positionMap={};totals.forEach(function(t,i){positionMap[t.studentId]=i+1;});
+  var totalPupils=totals.length;
+
   var h='';
   students.forEach(function(stu){
     var stuClass=stu.class||cls;
-    var scores=stu.scores||{},subjects=Object.keys(scores).sort();
-    var rows='',totalPctSum=0,count=0;
-    var cellFontSize=12;
-    var cellPad='6px 4px';
-    var headers='<th style="padding:'+cellPad+';border:1px solid #c1121f">Code</th><th style="padding:'+cellPad+';border:1px solid #c1121f">Subject</th><th style="padding:'+cellPad+';border:1px solid #c1121f">BOT</th><th style="padding:'+cellPad+';border:1px solid #c1121f">MOT</th><th style="padding:'+cellPad+';border:1px solid #c1121f">EOT</th><th style="padding:'+cellPad+';border:1px solid #c1121f">TOTAL</th><th style="padding:'+cellPad+';border:1px solid #c1121f">Grade</th><th style="padding:'+cellPad+';border:1px solid #c1121f">Achievement</th><th style="padding:'+cellPad+';border:1px solid #c1121f">Initial</th>';
-    var bg='#c1121f';
+    var scores=stu.scores||{};
+    var subjects=Object.keys(scores).sort();
+
+    var rows='';
+    var totalMarksSum=0,avgMarksSum=0,count=0;
+    var aggregates=[];
+
     subjects.forEach(function(subj){
       var sv=scores[subj]||{};
-      var code=subjectCodeFor(subj);
       var init=(sv.teacherInitials||'—').toUpperCase();
-      var bot=parseFloat(sv.bot)||0;
-      var mot=parseFloat(sv.mot)||0;
-      var eot=parseFloat(sv.eot)||0;
-      var total=(bot+mot+eot)/3;
-      var grade=gradeFromPercentage(total);
-      var desc=generateAutoComment(total);
-      rows+='<tr><td style="padding:'+cellPad+';border:1px solid #666;text-align:center">'+code+'</td><td style="padding:'+cellPad+';border:1px solid #666;font-weight:600">'+subj.toUpperCase()+'</td><td style="padding:'+cellPad+';border:1px solid #666;text-align:center">'+(bot||'—')+'</td><td style="padding:'+cellPad+';border:1px solid #666;text-align:center">'+(mot||'—')+'</td><td style="padding:'+cellPad+';border:1px solid #666;text-align:center">'+(eot||'—')+'</td><td style="padding:'+cellPad+';border:1px solid #666;text-align:center;font-weight:700;color:#c1121f">'+total.toFixed(1)+'</td><td style="padding:'+cellPad+';border:1px solid #666;text-align:center;font-weight:700">'+grade+'</td><td style="padding:'+cellPad+';border:1px solid #666;font-size:'+(cellFontSize-1)+'px">'+desc+'</td><td style="padding:'+cellPad+';border:1px solid #666;text-align:center;font-size:'+(cellFontSize-1)+'px">'+init+'</td></tr>';
-      totalPctSum+=total;count++;
+      var bot=parseFloat(sv.bot)||0,mot=parseFloat(sv.mot)||0,eot=parseFloat(sv.eot)||0;
+      var used=[],denom=0;
+      if(includeBOT){used.push(bot);denom++;}
+      if(includeMOT){used.push(mot);denom++;}
+      if(includeEOT){used.push(eot);denom++;}
+      if(denom===0)return;
+      var totalMarks=used.reduce(function(a,b){return a+b;},0);
+      var subjectAvg=totalMarks/denom;
+      var grade=primaryGradeFromPct(subjectAvg);
+      var remark=remarkFromAverage(subjectAvg);
+      var agg=primaryGradeToAggregate(grade);
+
+      var midCells='';
+      if(includeBOT)midCells+='<td style="border:1px solid #666;text-align:center">'+(bot||'—')+'</td>';
+      if(includeMOT)midCells+='<td style="border:1px solid #666;text-align:center">'+(mot||'—')+'</td>';
+      if(includeEOT)midCells+='<td style="border:1px solid #666;text-align:center">'+(eot||'—')+'</td>';
+
+      rows+='<tr>'+
+        '<td style="padding:5px;border:1px solid #666;font-weight:600">'+escapeHtml(subj.toUpperCase())+'</td>'+
+        midCells+
+        '<td style="padding:5px;border:1px solid #666;text-align:center;font-weight:700;color:#c1121f">'+totalMarks.toFixed(1)+'</td>'+
+        '<td style="padding:5px;border:1px solid #666;text-align:center;font-weight:700">'+grade+'</td>'+
+        '<td style="padding:5px;border:1px solid #666;text-align:center">'+agg+'</td>'+
+        '<td style="padding:5px;border:1px solid #666;font-size:11px">'+escapeHtml(remark)+'</td>'+
+        '<td style="padding:5px;border:1px solid #666;text-align:center;font-weight:700">'+escapeHtml(init)+'</td>'+
+      '</tr>';
+
+      totalMarksSum+=totalMarks;
+      avgMarksSum+=subjectAvg;
+      aggregates.push(agg);
+      count++;
     });
-    var overallAvg=count>0?totalPctSum/count:0;
-    var overallGrade=gradeFromPercentage(overallAvg);
-    var autoComment=generateAutoComment(overallAvg);
-    var tMotiv={'D1':'Outstanding! Keep shining.','D2':'Excellent work!','C3':'Good effort!','C4':'Let\'s improve together.','P5':'Every step counts.','P6':'We believe in you.','P7':'Keep trying.','F8':'Don\'t give up.','F9':'Work harder.'};
-    var hMotiv={'D1':'Exceptional results!','D2':'Very good performance!','C3':'Satisfactory progress.','C4':'We are here to support you.','P5':'Believe in yourself.','P6':'Keep pushing.','P7':'Never give up.','F8':'You can do better.','F9':'Seek help.'};
-    var teacherCommentFinal=customTeacherComment?(customTeacherComment+' — '+(tMotiv[overallGrade]||'')):(tMotiv[overallGrade]||autoComment);
-    var headCommentFinal=customHeadComment?(customHeadComment+' — '+(hMotiv[overallGrade]||'')):(hMotiv[overallGrade]||autoComment);
-    var photo=getStudentPhoto(stu.studentId, stu.studentName, stuClass);
-    var photoSize='80px',photoHeight='100px';
-    var photoHtml=photo?'<img src="'+photo+'" style="width:'+photoSize+';height:'+photoHeight+';object-fit:cover;border:2px solid #333;border-radius:4px" />':'<div style="width:'+photoSize+';height:'+photoHeight+';border:2px dashed #999;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#999">PHOTO</div>';
-    var qrText=JSON.stringify({id:stu.studentId,name:stu.studentName,class:stuClass,term:term,year:year,avg:overallAvg.toFixed(1),grade:overallGrade});
+
+    var averageMark=count>0?avgMarksSum/count:0;
+    var totalAggregates=aggregates.reduce(function(a,b){return a+b;},0);
+    var division=divisionFromAggregates(aggregates);
+    var overallRemark=remarkFromAverage(averageMark);
+    var position=positionMap[stu.studentId]||'—';
+
+    var tMotiv={'Excellent':'Outstanding work! Keep up the excellent standard.','Very Good':'Very good performance. Aim even higher next term.','Good':'Good effort. With more practice you can do better.','Fair':'Fair progress. Focus on your weak areas.','Improve':'You can do better. Please work harder.','Double Your Efforts':'Improve your performance. Seek help where needed.'};
+    var hMotiv={'Excellent':'Exceptional results — the school is proud of you.','Very Good':'Very good performance. Keep it up.','Good':'Good performance. Continue working hard.','Fair':'Fair performance. More effort is required.','Improve':'You need to improve next term.','Double Your Efforts':'We expect improvement next term.'};
+    var teacherCommentFinal=customTeacherComment?(customTeacherComment+' — '+(tMotiv[overallRemark]||'')):(tMotiv[overallRemark]||overallRemark);
+    var headCommentFinal=customHeadComment?(customHeadComment+' — '+(hMotiv[overallRemark]||'')):(hMotiv[overallRemark]||overallRemark);
+
+    var photo=getStudentPhoto(stu.studentId,stu.studentName,stuClass);
+    var photoHtml=photo?'<img src="'+photo+'" style="width:80px;height:100px;object-fit:cover;border:2px solid #333;border-radius:4px" />':'<div style="width:80px;height:100px;border:2px dashed #999;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#999">PHOTO</div>';
+
+    var qrText=JSON.stringify({id:stu.studentId,name:stu.studentName,class:stuClass,term:term,year:year,avg:averageMark.toFixed(1),agg:totalAggregates,div:division,pos:position});
     var hmSig=branding.signature?'<img src="'+branding.signature+'" style="height:30px;display:inline-block;vertical-align:middle" />':'....................';
     var ctSig=localStorage.getItem('classTeacherSig_'+stuClass)?'<img src="'+localStorage.getItem('classTeacherSig_'+stuClass)+'" style="height:30px;display:inline-block;vertical-align:middle" />':'....................';
-    var footerFontSize=12;
-    var footerHtml='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;border:1px solid #666;border-top:none;font-size:'+footerFontSize+'px;text-align:center;background:#f8f9fa"><div style="padding:8px;border-right:1px solid #666">Total Score: <b>'+totalPctSum.toFixed(1)+'</b></div><div style="padding:8px;border-right:1px solid #666">Average Score: <b>'+overallAvg.toFixed(1)+'</b></div><div style="padding:8px">Grade: <b style="color:#c1121f">'+overallGrade+'</b></div></div>';
-    var reportClass='generated-document a4-report';
-    var headerFontSize=20,titleBarFontSize=14,infoFontSize=12,commentFontSize=11,bottomFontSize=11;
-    h+='<div class="'+reportClass+'" style="overflow:hidden;border:1px solid #c1121f;padding:0;margin-bottom:12px">'+
+
+    var subjectHeaderCells='<th style="padding:6px;border:1px solid #fff">Subject</th>';
+    if(includeBOT)subjectHeaderCells+='<th style="padding:6px;border:1px solid #fff">BOT</th>';
+    if(includeMOT)subjectHeaderCells+='<th style="padding:6px;border:1px solid #fff">MOT</th>';
+    if(includeEOT)subjectHeaderCells+='<th style="padding:6px;border:1px solid #fff">EOT</th>';
+    subjectHeaderCells+='<th style="padding:6px;border:1px solid #fff">TOTAL MARKS</th><th style="padding:6px;border:1px solid #fff">GRADE</th><th style="padding:6px;border:1px solid #fff">AGG</th><th style="padding:6px;border:1px solid #fff">REMARKS</th><th style="padding:6px;border:1px solid #fff">INITIAL</th>';
+
+    h+='<div class="generated-document a4-report" style="overflow:hidden;border:1px solid #c1121f;padding:0;margin-bottom:12px">'+
       '<div style="position:relative;z-index:1;padding:14px 16px">'+
         '<input type="checkbox" class="report-select-cb" onclick="toggleReportSelection(this)" />'+
         '<button class="report-print-btn" onclick="downloadSingleReportPDF(this)">Download PDF</button>'+
         '<div style="text-align:center;border-bottom:2px solid #c1121f;padding-bottom:8px;margin-bottom:8px">'+
           (branding.badge?'<img src="'+branding.badge+'" style="height:60px;float:left;margin-right:10px" />':'')+
-          '<div style="font-size:'+headerFontSize+'px;font-weight:700;color:#c1121f;font-family:Georgia,serif">'+branding.name+'</div>'+
-          '<div style="font-size:'+(infoFontSize-1)+'px;color:#555">'+(branding.address||'')+' | '+(branding.phone||'')+'</div>'+
-          '<div style="font-size:'+infoFontSize+'px;font-weight:700;color:#004085;margin-top:4px">MOTTO: '+(branding.motto||'').toUpperCase()+'</div>'+
+          '<div style="font-size:20px;font-weight:700;color:#c1121f;font-family:Georgia,serif">'+branding.name+'</div>'+
+          '<div style="font-size:12px;color:#555">'+(branding.address||'')+' | '+(branding.phone||'')+'</div>'+
+          '<div style="font-size:12px;font-weight:700;color:#004085;margin-top:4px">MOTTO: '+(branding.motto||'').toUpperCase()+'</div>'+
         '</div>'+
-        '<div style="background:'+bg+';color:#fff;text-align:center;padding:7px;font-weight:700;font-size:'+titleBarFontSize+'px;margin-bottom:8px;text-transform:uppercase">END OF TERM '+term+' '+year+' REPORT CARD</div>'+
+        '<div style="background:#c1121f;color:#fff;text-align:center;padding:7px;font-weight:700;font-size:14px;margin-bottom:8px;text-transform:uppercase">END OF TERM '+term+' '+year+' REPORT CARD</div>'+
         '<div style="display:grid;grid-template-columns:80px 1fr;gap:12px;margin-bottom:8px">'+
           '<div>'+photoHtml+'</div>'+
-          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:'+infoFontSize+'px;padding:6px;background:#f8f9fa;border-radius:4px;border:1px solid #ddd">'+
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px;padding:6px;background:#f8f9fa;border-radius:4px;border:1px solid #ddd">'+
             '<div><strong>NAME:</strong> '+escapeHtml(stu.studentName||'')+'</div>'+
             '<div><strong>ID:</strong> '+escapeHtml(stu.studentId||'')+'</div>'+
             '<div><strong>CLASS:</strong> '+escapeHtml(stuClass)+'</div>'+
             '<div><strong>STREAM:</strong> '+escapeHtml(stu.stream||'—')+'</div>'+
             '<div><strong>SEX:</strong> '+escapeHtml(stu.sex||'—')+'</div>'+
             '<div><strong>RESIDENCE:</strong> '+escapeHtml(stu.residence||'—')+'</div>'+
+            '<div><strong>POSITION:</strong> '+position+' OUT OF '+totalPupils+'</div>'+
+            '<div><strong>DIVISION:</strong> '+divisionRoman(division)+'</div>'+
           '</div>'+
         '</div>'+
-        '<table style="width:100%;border-collapse:collapse;font-size:'+cellFontSize+'px;border:1px solid #666">'+
-          '<thead style="background:'+bg+';color:#fff"><tr>'+headers+'</tr></thead>'+
+        '<table style="width:100%;border-collapse:collapse;font-size:12px;border:1px solid #666">'+
+          '<thead style="background:#c1121f;color:#fff"><tr>'+subjectHeaderCells+'</tr></thead>'+
           '<tbody>'+(rows||'<tr><td colspan="9" style="padding:14px;text-align:center">No scores</td></tr>')+'</tbody>'+
         '</table>'+
-        footerHtml+
-        '<div style="margin-top:10px;border:1px solid #666;font-size:'+commentFontSize+'px">'+
+        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;border:1px solid #666;border-top:none;font-size:12px;text-align:center;background:#f8f9fa">'+
+          '<div style="padding:8px;border-right:1px solid #666">Total Marks: <b>'+totalMarksSum.toFixed(1)+'</b></div>'+
+          '<div style="padding:8px;border-right:1px solid #666">Average Mark: <b>'+averageMark.toFixed(1)+'</b></div>'+
+          '<div style="padding:8px;border-right:1px solid #666">Aggregates: <b>'+totalAggregates+'</b></div>'+
+          '<div style="padding:8px">Division: <b style="color:#c1121f">'+divisionRoman(division)+'</b></div>'+
+        '</div>'+
+        '<div style="margin-top:10px;border:1px solid #666;font-size:11px">'+
           '<div style="padding:6px;border-bottom:1px solid #666;background:#f0f4ff"><strong>CLASS TEACHER\'S COMMENT:</strong> <em>'+teacherCommentFinal+'</em> <span style="float:right">'+ctSig+'</span></div>'+
           '<div style="padding:6px;background:#f0f4ff"><strong>HEAD TEACHER\'S COMMENT:</strong> <em>'+headCommentFinal+'</em> <span style="float:right">'+hmSig+'</span></div>'+
         '</div>'+
-        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px;font-size:'+bottomFontSize+'px">'+
+        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px;font-size:11px">'+
           '<div style="border:1px solid #666;padding:5px;text-align:center"><strong>Next Term Begins:</strong> '+(branding.termStartDate||'N/A')+'</div>'+
           '<div style="border:1px solid #666;padding:5px;text-align:center"><strong>Fees Balance:</strong> <span class="fee-balance" data-student-id="'+stu.studentId+'">Loading...</span></div>'+
           '<div style="border:1px solid #666;padding:5px;text-align:center"><strong>Scan to Verify</strong><div data-qr="'+escapeHtml(qrText)+'"></div></div>'+
         '</div>'+
-        '<div style="text-align:center;margin-top:8px;font-size:'+bottomFontSize+'px;color:#c1121f;font-weight:700">This report is invalid without school stamp</div>'+
+        '<div style="text-align:center;margin-top:8px;font-size:11px;color:#c1121f;font-weight:700">This report is invalid without school stamp</div>'+
       '</div>'+
     '</div>';
   });
@@ -2159,38 +2236,74 @@ function renderMiniReports(){
   if(!f||f.length===0){c.innerHTML='<p style="color:#999;text-align:center;padding:20px">No pupils.</p>';return;}
   var branding=getSchoolBranding();
   var term=document.getElementById('settingsTerm')?.value||'III';
+  var includeBOT=branding.examIncludeBOT!==false;
+  var includeMOT=branding.examIncludeMOT!==false;
+  var includeEOT=branding.examIncludeEOT!==false;
+
+  var totalsAll=miniReportData.map(function(s){
+    var sum=0,cnt=0;
+    Object.keys(s.scores||{}).forEach(function(subj){
+      var sv=s.scores[subj]||{};
+      var bot=parseFloat(sv.bot)||0,mot=parseFloat(sv.mot)||0,eot=parseFloat(sv.eot)||0;
+      var used=[],d=0;
+      if(includeBOT){used.push(bot);d++;}
+      if(includeMOT){used.push(mot);d++;}
+      if(includeEOT){used.push(eot);d++;}
+      if(d===0)return;
+      sum+=used.reduce(function(a,b){return a+b;},0)/d;cnt++;
+    });
+    return {studentId:s.studentId,avg:cnt>0?sum/cnt:0};
+  });
+  totalsAll.sort(function(a,b){return b.avg-a.avg;});
+  var posMap={};totalsAll.forEach(function(t,i){posMap[t.studentId]=i+1;});
+  var totalPupils=totalsAll.length;
+
   var h='';
   f.forEach(function(s){
     var subjects=Object.keys(s.scores||{}).sort();
-    var tableRows='',sumPct=0,count=0;
-    if(subjects.length===0){tableRows='<tr><td colspan="4" style="text-align:center;color:#999;padding:10px">No scores</td></tr>';}
-    else{
+    var tableRows='',sumAvg=0,cnt=0;
+    var aggregates=[];
+
+    if(subjects.length===0){
+      tableRows='<tr><td colspan="4" style="text-align:center;color:#999;padding:10px">No scores</td></tr>';
+    }else{
       subjects.forEach(function(sub){
         var sv=s.scores[sub]||{};
-        var bot=parseFloat(sv.bot)||0;
-        var mot=parseFloat(sv.mot)||0;
-        var eot=parseFloat(sv.eot)||0;
-        var pct=Math.round((bot+mot+eot)/3);
-        var grade=gradeFromPercentage(pct);
-        if(pct>0){sumPct+=pct;count++;}
-        tableRows+='<tr><td class="mini-subject">'+escapeHtml(sub)+'</td><td class="mini-pct">'+pct+'%</td><td class="mini-grade">'+grade+'</td></tr>';
+        var bot=parseFloat(sv.bot)||0,mot=parseFloat(sv.mot)||0,eot=parseFloat(sv.eot)||0;
+        var used=[],d=0;
+        if(includeBOT){used.push(bot);d++;}
+        if(includeMOT){used.push(mot);d++;}
+        if(includeEOT){used.push(eot);d++;}
+        if(d===0)return;
+        var totalMarks=used.reduce(function(a,b){return a+b;},0);
+        var avg=totalMarks/d;
+        var grade=primaryGradeFromPct(avg);
+        var agg=primaryGradeToAggregate(grade);
+        sumAvg+=avg;cnt++;
+        aggregates.push(agg);
+        tableRows+='<tr><td class="mini-subject">'+escapeHtml(sub)+'</td><td class="mini-pct">'+totalMarks.toFixed(0)+'</td><td class="mini-grade">'+grade+'</td><td class="mini-pts">'+agg+'</td></tr>';
       });
     }
-    var avg=count>0?sumPct/count:0;
-    var og=count>0?gradeFromPercentage(avg):null;
-    var status=count===0?'<div class="status-bar no-data">No Data</div>':(og==='D1'?'<div class="status-bar outstanding">OUTSTANDING</div>':'<div class="status-bar">'+descriptorFromGrade(og)+'</div>');
-    var photo=getStudentPhoto(s.studentId, s.studentName, cls);
+    var avgMark=cnt>0?sumAvg/cnt:0;
+    var totalAggs=aggregates.reduce(function(a,b){return a+b;},0);
+    var division=divisionFromAggregates(aggregates);
+    var remark=remarkFromAverage(avgMark);
+    var position=posMap[s.studentId]||'—';
+
+    var status=cnt===0?'<div class="status-bar no-data">No Data</div>':'<div class="status-bar">'+escapeHtml(remark.toUpperCase())+'</div>';
+    var photo=getStudentPhoto(s.studentId,s.studentName,cls);
     var photoHtml=photo?'<img src="'+photo+'" />':(branding.badge?'<img src="'+branding.badge+'" />':'<span style="font-size:24px">👤</span>');
-    var qrText=JSON.stringify({id:s.studentId,name:s.studentName,class:s.class,avg:avg.toFixed(1),grade:og});
-    var tableHeader='<thead><tr><th>Subject</th><th>Score</th><th>Grade</th></tr></thead>';
+    var qrText=JSON.stringify({id:s.studentId,name:s.studentName,class:s.class,avg:avgMark.toFixed(1),agg:totalAggs,div:division,pos:position});
+
     h+='<div class="mini-report-card" style="position:relative">'+
       '<button class="report-print-btn" onclick="downloadSingleMiniPDF(this)">Download PDF</button>'+
       '<div class="card-header"><div class="school-name" style="font-size:19px">'+branding.name+'</div></div>'+
       '<div class="photo-container"><div class="photo-placeholder" style="width:75px;height:75px">'+photoHtml+'</div></div>'+
       '<div class="student-name">'+escapeHtml((s.studentName||'').toUpperCase())+'</div>'+
       '<div class="student-meta"><span>ID: '+escapeHtml(s.studentId||'')+'</span><span>Class: '+escapeHtml(s.class||'')+'</span><span>Stream: '+escapeHtml(s.stream||'—')+'</span><span>Term: '+escapeHtml(term)+'</span></div>'+
-      '<table class="mini-table">'+tableHeader+'<tbody>'+tableRows+'</tbody></table>'+
-      '<div class="average-row"><span>Average: '+(count>0?avg.toFixed(1)+'%':'---')+'</span><span>Grade: '+(og||'---')+'</span></div>'+
+      '<table class="mini-table"><thead><tr><th>Subject</th><th>Total Marks</th><th>Grade</th><th>Agg</th></tr></thead><tbody>'+tableRows+'</tbody></table>'+
+      '<div class="average-row"><span>Average Mark: '+(cnt>0?avgMark.toFixed(1):'---')+'</span><span>Aggregates: '+totalAggs+'</span><span>Division: '+divisionRoman(division)+'</span></div>'+
+      '<div class="average-row" style="justify-content:center"><span>POSITION '+position+' OUT OF '+totalPupils+'</span></div>'+
       status+
       '<div style="text-align:center;margin-top:8px"><div data-qr="'+escapeHtml(qrText)+'" style="display:inline-block"></div></div>'+
       '<div style="text-align:center;margin-top:10px;padding-top:8px;border-top:1px solid #e0e0e0;font-size:10px;color:#888">Powered by <strong>EduTrack Pro</strong></div>'+
@@ -2236,7 +2349,7 @@ async function generateDocument(){
     if(type==='classlist'){
       tbl='<table class="score-sheet-table"><thead><tr><th>#</th><th>PHOTO</th><th>ID</th><th>NAME</th><th>SEX</th><th>STREAM</th><th>RESIDENCE</th><th>PARENT</th><th>PHONE</th><th>EMAIL</th></tr></thead><tbody>';
       students.forEach(function(s,i){
-        var p=getStudentPhoto(s.studentId, s.studentName, cls);
+        var p=getStudentPhoto(s.studentId,s.studentName,cls);
         var ph=p?'<img src="'+p+'" style="width:40px;height:50px;object-fit:cover" />':'N/A';
         tbl+='<tr><td>'+(i+1)+'</td><td>'+ph+'</td><td>'+escapeHtml(s.studentId)+'</td><td>'+escapeHtml(s.studentName)+'</td><td>'+escapeHtml(s.sex||'')+'</td><td>'+escapeHtml(s.stream||'')+'</td><td>'+escapeHtml(s.residence||'')+'</td><td>'+escapeHtml(s.parentName||'')+'</td><td>'+escapeHtml(s.parentPhone||'')+'</td><td>'+escapeHtml(s.parentEmail||'')+'</td></tr>';
       });
@@ -2246,13 +2359,11 @@ async function generateDocument(){
       tbl+='<table class="score-sheet-table"><thead><tr><th>#</th><th>PHOTO</th><th>ID</th><th>NAME</th><th>BOT</th><th>MOT</th><th>EOT</th><th>AVG</th><th>GRADE</th><th>INITIAL</th></tr></thead><tbody>';
       students.forEach(function(s,i){
         var sv=(s.scores&&s.scores[subj])?s.scores[subj]:{};
-        var bot=parseFloat(sv.bot)||0;
-        var mot=parseFloat(sv.mot)||0;
-        var eot=parseFloat(sv.eot)||0;
+        var bot=parseFloat(sv.bot)||0,mot=parseFloat(sv.mot)||0,eot=parseFloat(sv.eot)||0;
         var avg=((bot+mot+eot)/3).toFixed(1);
-        var g=gradeFromPercentage(avg);
+        var g=primaryGradeFromPct(avg);
         var init=(sv.teacherInitials||'').toUpperCase()||'—';
-        var p=getStudentPhoto(s.studentId, s.studentName, cls);
+        var p=getStudentPhoto(s.studentId,s.studentName,cls);
         var ph=p?'<img src="'+p+'" style="width:40px;height:50px;object-fit:cover" />':'N/A';
         tbl+='<tr><td>'+(i+1)+'</td><td>'+ph+'</td><td>'+escapeHtml(s.studentId)+'</td><td>'+escapeHtml(s.studentName)+'</td><td>'+bot+'</td><td>'+mot+'</td><td>'+eot+'</td><td>'+avg+'</td><td>'+g+'</td><td>'+escapeHtml(init)+'</td></tr>';
       });
@@ -2465,6 +2576,10 @@ function startChatPolling(){
 }
 
 /* ============ SETTINGS ============ */
+function setChecked(id,v){
+  var el=document.getElementById(id);
+  if(el) el.checked = (v===undefined)?true:(v===true||v==='true'||v===1||v==='1');
+}
 async function loadSettings(){
   var school=getActiveSchool();if(!school)return;
   await refreshBrandingFromSheet();
@@ -2487,11 +2602,12 @@ async function loadSettings(){
   set('gradeA',s.gradeA||80);set('gradeB',s.gradeB||70);set('gradeC',s.gradeC||60);
   set('gradeD',s.gradeD||50);set('gradeE',s.gradeE||40);
   set('gradeF',s.gradeF||30);set('gradeG',s.gradeG||20);set('gradeH',s.gradeH||10);set('gradeI',s.gradeI||0);
+  setChecked('examIncludeBOT',s.examIncludeBOT);
+  setChecked('examIncludeMOT',s.examIncludeMOT);
+  setChecked('examIncludeEOT',s.examIncludeEOT);
   set('settingsFinanceSheet',s.financeSheet||'');
   set('settingsAttendanceSheet',s.attendanceSheet||'');
   set('settingsTimetableSheet',s.timetableSheet||'');
-  set('settingsStoreSheet',s.storeSheet||'');
-  set('settingsNurseSheet',s.nurseSheet||'');
   try{
     var cr=await callAppsScript({action:'getClassLinks',school:school});
     if(cr.success&&cr.data&&cr.data.links){
@@ -2525,9 +2641,11 @@ async function saveAllSettings(){
     gradeA:get('gradeA'),gradeB:get('gradeB'),gradeC:get('gradeC'),
     gradeD:get('gradeD'),gradeE:get('gradeE'),
     gradeF:get('gradeF'),gradeG:get('gradeG'),gradeH:get('gradeH'),gradeI:get('gradeI'),
+    examIncludeBOT:document.getElementById('examIncludeBOT')?.checked?'true':'false',
+    examIncludeMOT:document.getElementById('examIncludeMOT')?.checked?'true':'false',
+    examIncludeEOT:document.getElementById('examIncludeEOT')?.checked?'true':'false',
     financeSheet:get('settingsFinanceSheet'),attendanceSheet:get('settingsAttendanceSheet'),
-    timetableSheet:get('settingsTimetableSheet'),storeSheet:get('settingsStoreSheet'),
-    nurseSheet:get('settingsNurseSheet'),
+    timetableSheet:get('settingsTimetableSheet'),
     teacherCustomComment:get('settingsTeacherComment'),headCustomComment:get('settingsHeadComment'),
     schoolBadgeUrl:(function(){try{return JSON.parse(localStorage.getItem('schoolSettings_'+school)||'{}').schoolBadgeUrl||'';}catch(e){return '';}})(),
     headSignatureUrl:(function(){try{return JSON.parse(localStorage.getItem('schoolSettings_'+school)||'{}').headSignatureUrl||'';}catch(e){return '';}})(),
@@ -2598,7 +2716,7 @@ async function ensureDriveFoldersUI(){
     if (r.success && r.data){
       var d = r.data;
       var h = '<div style="background:#d4edda;padding:10px;border-radius:8px">'+
-        '<b>✅ Root:</b> <a href="'+d.root.url+'" target="_blank">EduTrack Pro</a><br>'+
+        '<b>✅ Root:</b> <a href="'+d.root.url+'" target="_blank">EduTrack Pro Primary</a><br>'+
         '<b>🏫 School:</b> <a href="'+d.schoolFolder.url+'" target="_blank">'+escapeHtml(d.schoolFolder.name)+'</a><br>'+
         '<div style="margin-top:6px"><b>Subfolders:</b></div>';
       Object.keys(d.folders).forEach(function(k){
