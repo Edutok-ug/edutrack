@@ -741,17 +741,17 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
     </div>
   </div>
   <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px">
-    <h4 style="color:var(--primary);font-size:14px;margin-bottom:10px">📊 Grade Thresholds (Primary)</h4>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(80px,1fr));gap:12px;padding:14px;background:var(--surface-2);border-radius:var(--radius-md)">
-      <div style="text-align:center"><label style="font-size:11px">D1 (80-100)</label><input type="number" id="gradeA" value="80" style="width:100%;padding:8px;border:2px solid var(--border);border-radius:6px" /></div>
-      <div style="text-align:center"><label style="font-size:11px">D2 (70-79)</label><input type="number" id="gradeB" value="70" style="width:100%;padding:8px;border:2px solid var(--border);border-radius:6px" /></div>
-      <div style="text-align:center"><label style="font-size:11px">C3 (60-69)</label><input type="number" id="gradeC" value="60" style="width:100%;padding:8px;border:2px solid var(--border);border-radius:6px" /></div>
-      <div style="text-align:center"><label style="font-size:11px">C4 (50-59)</label><input type="number" id="gradeD" value="50" style="width:100%;padding:8px;border:2px solid var(--border);border-radius:6px" /></div>
-      <div style="text-align:center"><label style="font-size:11px">P5 (40-49)</label><input type="number" id="gradeE" value="40" style="width:100%;padding:8px;border:2px solid var(--border);border-radius:6px" /></div>
-      <div style="text-align:center"><label style="font-size:11px">P6 (30-39)</label><input type="number" id="gradeF" value="30" style="width:100%;padding:8px;border:2px solid var(--border);border-radius:6px" /></div>
-      <div style="text-align:center"><label style="font-size:11px">P7 (20-29)</label><input type="number" id="gradeG" value="20" style="width:100%;padding:8px;border:2px solid var(--border);border-radius:6px" /></div>
-      <div style="text-align:center"><label style="font-size:11px">F8 (10-19)</label><input type="number" id="gradeH" value="10" style="width:100%;padding:8px;border:2px solid var(--border);border-radius:6px" /></div>
-      <div style="text-align:center"><label style="font-size:11px">F9 (0-9)</label><input type="number" id="gradeI" value="0" style="width:100%;padding:8px;border:2px solid var(--border);border-radius:6px" /></div>
+    <h4 style="color:var(--primary);font-size:14px;margin-bottom:10px">📊 Grade Thresholds (Primary D1–F9)</h4>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:12px;padding:14px;background:var(--surface-2);border-radius:var(--radius-md)">
+      <div style="text-align:center"><label style="font-size:11px">D1 (≥)</label><input type="number" id="gradeA" value="80" style="width:100%;padding:8px;border:2px solid var(--border);border-radius:6px" /></div>
+      <div style="text-align:center"><label style="font-size:11px">D2 (≥)</label><input type="number" id="gradeB" value="70" style="width:100%;padding:8px;border:2px solid var(--border);border-radius:6px" /></div>
+      <div style="text-align:center"><label style="font-size:11px">C3 (≥)</label><input type="number" id="gradeC" value="60" style="width:100%;padding:8px;border:2px solid var(--border);border-radius:6px" /></div>
+      <div style="text-align:center"><label style="font-size:11px">C4 (≥)</label><input type="number" id="gradeD" value="50" style="width:100%;padding:8px;border:2px solid var(--border);border-radius:6px" /></div>
+      <div style="text-align:center"><label style="font-size:11px">C5 (≥)</label><input type="number" id="gradeE" value="40" style="width:100%;padding:8px;border:2px solid var(--border);border-radius:6px" /></div>
+      <div style="text-align:center"><label style="font-size:11px">C6 (≥)</label><input type="number" id="gradeF" value="30" style="width:100%;padding:8px;border:2px solid var(--border);border-radius:6px" /></div>
+      <div style="text-align:center"><label style="font-size:11px">P7 (≥)</label><input type="number" id="gradeG" value="20" style="width:100%;padding:8px;border:2px solid var(--border);border-radius:6px" /></div>
+      <div style="text-align:center"><label style="font-size:11px">P8 (≥)</label><input type="number" id="gradeH" value="10" style="width:100%;padding:8px;border:2px solid var(--border);border-radius:6px" /></div>
+      <div style="text-align:center"><label style="font-size:11px">F9 (≥)</label><input type="number" id="gradeI" value="0" style="width:100%;padding:8px;border:2px solid var(--border);border-radius:6px" /></div>
     </div>
   </div>
   <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px">
@@ -908,9 +908,9 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 
 <script>
 /* ============================================================
-   EduTrack Pro Admin v34.0 — PRIMARY (Uganda)
+   EduTrack Pro Admin v35.0 — PRIMARY (Uganda)
    ============================================================ */
-var APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbx1aWc5Pec1sbFrajSnQFKo3QrwMZa-u5o34xr0PcdYE1u7d-hfgRBm2C2a5mVOaTqsjQ/exec';
+var APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbyz6t-MuZyPH7yNw9kPtjos-XfzlYXMKYiDwNKCDAUbhibsz62NGlH6OT4Wgd2wYIjoOA/exec';
 var FACE_CONFIG={modelPath:'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/',recognitionThreshold:0.55,storageKey:'registeredFaces',attendanceKey:'attendanceRecords'};
 var FACE_DETECTION_OPTIONS=null;
 var SUBJECT_CODES={'English':'ENG','Mathematics':'MTC','Science':'SCI','Social Studies':'SST','Religious Education':'RE','Luganda':'LUG','Kiswahili':'KIS','Local Language':'LL','Reading':'REA','Writing':'WRI','Physical Education':'PE','Music':'MUS','Art and Craft':'ART','Agriculture':'AGR','Computer Studies':'CMP'};
@@ -942,30 +942,44 @@ function escapeHtml(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c
 function subjectCodeFor(n){return SUBJECT_CODES[n]||'—';}
 function normalizeNameKey(name){return String(name||'').toLowerCase().replace(/[\s._-]+/g,'');}
 
+/* Grading: D1, D2, C3, C4, C5, C6, P7, P8, F9 */
 function primaryGradeFromPct(pct){
-  if(pct >= 80) return 'D1';
-  if(pct >= 70) return 'D2';
-  if(pct >= 60) return 'C3';
-  if(pct >= 50) return 'C4';
-  if(pct >= 40) return 'P5';
-  if(pct >= 30) return 'P6';
-  if(pct >= 20) return 'P7';
-  if(pct >= 10) return 'F8';
+  var a = parseFloat(document.getElementById('gradeA')?.value) || 80;
+  var b = parseFloat(document.getElementById('gradeB')?.value) || 70;
+  var c = parseFloat(document.getElementById('gradeC')?.value) || 60;
+  var d = parseFloat(document.getElementById('gradeD')?.value) || 50;
+  var e = parseFloat(document.getElementById('gradeE')?.value) || 40;
+  var f = parseFloat(document.getElementById('gradeF')?.value) || 30;
+  var g = parseFloat(document.getElementById('gradeG')?.value) || 20;
+  var h = parseFloat(document.getElementById('gradeH')?.value) || 10;
+  if(pct >= a) return 'D1';
+  if(pct >= b) return 'D2';
+  if(pct >= c) return 'C3';
+  if(pct >= d) return 'C4';
+  if(pct >= e) return 'C5';
+  if(pct >= f) return 'C6';
+  if(pct >= g) return 'P7';
+  if(pct >= h) return 'P8';
   return 'F9';
 }
 function primaryGradeToAggregate(g){
-  var map={'D1':1,'D2':2,'C3':3,'C4':4,'P5':5,'P6':6,'P7':7,'F8':8,'F9':9};
+  var map={'D1':1,'D2':2,'C3':3,'C4':4,'C5':5,'C6':6,'P7':7,'P8':8,'F9':9};
   return map[g]||0;
 }
-function divisionFromAggregates(aggs){
-  if(!aggs || aggs.length===0) return '—';
+function divisionFromAggregates(aggs,hasF9){
+  if(!aggs||aggs.length===0) return '—';
   var total=aggs.reduce(function(a,b){return a+b;},0);
-  var avg=total/aggs.length;
-  if(avg<=2.0) return 'I';
-  if(avg<=3.0) return 'II';
-  if(avg<=4.5) return 'III';
-  if(avg<=6.0) return 'IV';
-  return 'U';
+  var div;
+  if(total>=4 && total<=12) div='I';
+  else if(total>=13 && total<=23) div='II';
+  else if(total>=24 && total<=29) div='III';
+  else if(total>=30 && total<=34) div='IV';
+  else div='U';
+  if(hasF9){
+    var bump={'I':'II','II':'III','III':'IV','IV':'U','U':'U'};
+    div=bump[div]||'U';
+  }
+  return div;
 }
 function divisionRoman(d){return {'I':'I','II':'II','III':'III','IV':'IV','U':'U'}[d]||d||'—';}
 function remarkFromAverage(avg){
@@ -975,6 +989,43 @@ function remarkFromAverage(avg){
   if(avg>=50) return 'Fair';
   if(avg>=40) return 'Improve';
   return 'Double Your Efforts';
+}
+
+function buildGradingScaleTable(){
+  var a = parseFloat(document.getElementById('gradeA')?.value) || 80;
+  var b = parseFloat(document.getElementById('gradeB')?.value) || 70;
+  var c = parseFloat(document.getElementById('gradeC')?.value) || 60;
+  var d = parseFloat(document.getElementById('gradeD')?.value) || 50;
+  var e = parseFloat(document.getElementById('gradeE')?.value) || 40;
+  var f = parseFloat(document.getElementById('gradeF')?.value) || 30;
+  var g = parseFloat(document.getElementById('gradeG')?.value) || 20;
+  var h = parseFloat(document.getElementById('gradeH')?.value) || 10;
+  var rows = [
+    ['D1', a + ' – 100', '1'],
+    ['D2', b + ' – ' + (a-1), '2'],
+    ['C3', c + ' – ' + (b-1), '3'],
+    ['C4', d + ' – ' + (c-1), '4'],
+    ['C5', e + ' – ' + (d-1), '5'],
+    ['C6', f + ' – ' + (e-1), '6'],
+    ['P7', g + ' – ' + (f-1), '7'],
+    ['P8', h + ' – ' + (g-1), '8'],
+    ['F9', '0 – ' + (h-1), '9']
+  ];
+  var h_ = '<table style="width:100%;border-collapse:collapse;font-size:13px;border:1px solid #666">' +
+    '<thead style="background:#c1121f;color:#fff"><tr>' +
+    '<th style="padding:5px;border:1px solid #fff">GRADE</th>' +
+    '<th style="padding:5px;border:1px solid #fff">MARKS</th>' +
+    '<th style="padding:5px;border:1px solid #fff">AGGREGATE</th>' +
+    '</tr></thead><tbody>';
+  rows.forEach(function(r){
+    h_ += '<tr>' +
+      '<td style="padding:5px;border:1px solid #666;text-align:center;font-weight:700">' + r[0] + '</td>' +
+      '<td style="padding:5px;border:1px solid #666;text-align:center">' + r[1] + '</td>' +
+      '<td style="padding:5px;border:1px solid #666;text-align:center">' + r[2] + '</td>' +
+    '</tr>';
+  });
+  h_ += '</tbody></table>';
+  return h_;
 }
 
 function showToast(msg,type){
@@ -2015,6 +2066,7 @@ function renderReportResults(students){
   var positionMap={};totals.forEach(function(t,i){positionMap[t.studentId]=i+1;});
   var totalPupils=totals.length;
 
+  var gradingScaleHtml=buildGradingScaleTable();
   var h='';
   students.forEach(function(stu){
     var stuClass=stu.class||cls;
@@ -2022,8 +2074,9 @@ function renderReportResults(students){
     var subjects=Object.keys(scores).sort();
 
     var rows='';
-    var totalMarksSum=0,avgMarksSum=0,count=0;
+    var totalAvgSum=0,count=0;
     var aggregates=[];
+    var hasF9=false;
 
     subjects.forEach(function(subj){
       var sv=scores[subj]||{};
@@ -2034,36 +2087,35 @@ function renderReportResults(students){
       if(includeMOT){used.push(mot);denom++;}
       if(includeEOT){used.push(eot);denom++;}
       if(denom===0)return;
-      var totalMarks=used.reduce(function(a,b){return a+b;},0);
-      var subjectAvg=totalMarks/denom;
-      var grade=primaryGradeFromPct(subjectAvg);
-      var remark=remarkFromAverage(subjectAvg);
+      var averageMark=used.reduce(function(a,b){return a+b;},0)/denom;
+      var grade=primaryGradeFromPct(averageMark);
+      var remark=remarkFromAverage(averageMark);
       var agg=primaryGradeToAggregate(grade);
+      if(grade==='F9') hasF9=true;
 
       var midCells='';
-      if(includeBOT)midCells+='<td style="border:1px solid #666;text-align:center">'+(bot||'—')+'</td>';
-      if(includeMOT)midCells+='<td style="border:1px solid #666;text-align:center">'+(mot||'—')+'</td>';
-      if(includeEOT)midCells+='<td style="border:1px solid #666;text-align:center">'+(eot||'—')+'</td>';
+      if(includeBOT)midCells+='<td style="border:1px solid #666;text-align:center;font-size:16px">'+(bot||'—')+'</td>';
+      if(includeMOT)midCells+='<td style="border:1px solid #666;text-align:center;font-size:16px">'+(mot||'—')+'</td>';
+      if(includeEOT)midCells+='<td style="border:1px solid #666;text-align:center;font-size:16px">'+(eot||'—')+'</td>';
 
       rows+='<tr>'+
-        '<td style="padding:5px;border:1px solid #666;font-weight:600">'+escapeHtml(subj.toUpperCase())+'</td>'+
+        '<td style="padding:6px;border:1px solid #666;font-weight:700;font-size:16px">'+escapeHtml(subj.toUpperCase())+'</td>'+
         midCells+
-        '<td style="padding:5px;border:1px solid #666;text-align:center;font-weight:700;color:#c1121f">'+totalMarks.toFixed(1)+'</td>'+
-        '<td style="padding:5px;border:1px solid #666;text-align:center;font-weight:700">'+grade+'</td>'+
-        '<td style="padding:5px;border:1px solid #666;text-align:center">'+agg+'</td>'+
-        '<td style="padding:5px;border:1px solid #666;font-size:11px">'+escapeHtml(remark)+'</td>'+
-        '<td style="padding:5px;border:1px solid #666;text-align:center;font-weight:700">'+escapeHtml(init)+'</td>'+
+        '<td style="padding:6px;border:1px solid #666;text-align:center;font-weight:700;color:#c1121f;font-size:16px">'+averageMark.toFixed(1)+'</td>'+
+        '<td style="padding:6px;border:1px solid #666;text-align:center;font-weight:700;font-size:16px">'+grade+'</td>'+
+        '<td style="padding:6px;border:1px solid #666;text-align:center;font-size:16px">'+agg+'</td>'+
+        '<td style="padding:6px;border:1px solid #666;font-size:15px">'+escapeHtml(remark)+'</td>'+
+        '<td style="padding:6px;border:1px solid #666;text-align:center;font-weight:700;font-size:15px">'+escapeHtml(init)+'</td>'+
       '</tr>';
 
-      totalMarksSum+=totalMarks;
-      avgMarksSum+=subjectAvg;
-      aggregates.push(agg);
+      totalAvgSum+=averageMark;
       count++;
+      aggregates.push(agg);
     });
 
-    var averageMark=count>0?avgMarksSum/count:0;
+    var averageMark=count>0?totalAvgSum/count:0;
     var totalAggregates=aggregates.reduce(function(a,b){return a+b;},0);
-    var division=divisionFromAggregates(aggregates);
+    var division=divisionFromAggregates(aggregates,hasF9);
     var overallRemark=remarkFromAverage(averageMark);
     var position=positionMap[stu.studentId]||'—';
 
@@ -2073,32 +2125,32 @@ function renderReportResults(students){
     var headCommentFinal=customHeadComment?(customHeadComment+' — '+(hMotiv[overallRemark]||'')):(hMotiv[overallRemark]||overallRemark);
 
     var photo=getStudentPhoto(stu.studentId,stu.studentName,stuClass);
-    var photoHtml=photo?'<img src="'+photo+'" style="width:80px;height:100px;object-fit:cover;border:2px solid #333;border-radius:4px" />':'<div style="width:80px;height:100px;border:2px dashed #999;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#999">PHOTO</div>';
+    var photoHtml=photo?'<img src="'+photo+'" style="width:90px;height:110px;object-fit:cover;border:2px solid #333;border-radius:4px" />':'<div style="width:90px;height:110px;border:2px dashed #999;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:12px;color:#999">PHOTO</div>';
 
     var qrText=JSON.stringify({id:stu.studentId,name:stu.studentName,class:stuClass,term:term,year:year,avg:averageMark.toFixed(1),agg:totalAggregates,div:division,pos:position});
-    var hmSig=branding.signature?'<img src="'+branding.signature+'" style="height:30px;display:inline-block;vertical-align:middle" />':'....................';
-    var ctSig=localStorage.getItem('classTeacherSig_'+stuClass)?'<img src="'+localStorage.getItem('classTeacherSig_'+stuClass)+'" style="height:30px;display:inline-block;vertical-align:middle" />':'....................';
+    var hmSig=branding.signature?'<img src="'+branding.signature+'" style="height:34px;display:inline-block;vertical-align:middle" />':'....................';
+    var ctSig=localStorage.getItem('classTeacherSig_'+stuClass)?'<img src="'+localStorage.getItem('classTeacherSig_'+stuClass)+'" style="height:34px;display:inline-block;vertical-align:middle" />':'....................';
 
-    var subjectHeaderCells='<th style="padding:6px;border:1px solid #fff">Subject</th>';
-    if(includeBOT)subjectHeaderCells+='<th style="padding:6px;border:1px solid #fff">BOT</th>';
-    if(includeMOT)subjectHeaderCells+='<th style="padding:6px;border:1px solid #fff">MOT</th>';
-    if(includeEOT)subjectHeaderCells+='<th style="padding:6px;border:1px solid #fff">EOT</th>';
-    subjectHeaderCells+='<th style="padding:6px;border:1px solid #fff">TOTAL MARKS</th><th style="padding:6px;border:1px solid #fff">GRADE</th><th style="padding:6px;border:1px solid #fff">AGG</th><th style="padding:6px;border:1px solid #fff">REMARKS</th><th style="padding:6px;border:1px solid #fff">INITIAL</th>';
+    var subjectHeaderCells='<th style="padding:8px;border:1px solid #fff;font-size:15px">SUBJECT</th>';
+    if(includeBOT)subjectHeaderCells+='<th style="padding:8px;border:1px solid #fff;font-size:15px">BOT</th>';
+    if(includeMOT)subjectHeaderCells+='<th style="padding:8px;border:1px solid #fff;font-size:15px">MOT</th>';
+    if(includeEOT)subjectHeaderCells+='<th style="padding:8px;border:1px solid #fff;font-size:15px">EOT</th>';
+    subjectHeaderCells+='<th style="padding:8px;border:1px solid #fff;font-size:15px">AVERAGE</th><th style="padding:8px;border:1px solid #fff;font-size:15px">GRADE</th><th style="padding:8px;border:1px solid #fff;font-size:15px">AGG</th><th style="padding:8px;border:1px solid #fff;font-size:15px">REMARKS</th><th style="padding:8px;border:1px solid #fff;font-size:15px">INITIAL</th>';
 
     h+='<div class="generated-document a4-report" style="overflow:hidden;border:1px solid #c1121f;padding:0;margin-bottom:12px">'+
-      '<div style="position:relative;z-index:1;padding:14px 16px">'+
+      '<div style="position:relative;z-index:1;padding:16px 18px">'+
         '<input type="checkbox" class="report-select-cb" onclick="toggleReportSelection(this)" />'+
         '<button class="report-print-btn" onclick="downloadSingleReportPDF(this)">Download PDF</button>'+
-        '<div style="text-align:center;border-bottom:2px solid #c1121f;padding-bottom:8px;margin-bottom:8px">'+
-          (branding.badge?'<img src="'+branding.badge+'" style="height:60px;float:left;margin-right:10px" />':'')+
-          '<div style="font-size:20px;font-weight:700;color:#c1121f;font-family:Georgia,serif">'+branding.name+'</div>'+
-          '<div style="font-size:12px;color:#555">'+(branding.address||'')+' | '+(branding.phone||'')+'</div>'+
-          '<div style="font-size:12px;font-weight:700;color:#004085;margin-top:4px">MOTTO: '+(branding.motto||'').toUpperCase()+'</div>'+
+        '<div style="text-align:center;border-bottom:2px solid #c1121f;padding-bottom:10px;margin-bottom:10px">'+
+          (branding.badge?'<img src="'+branding.badge+'" style="height:70px;float:left;margin-right:10px" />':'')+
+          '<div style="font-size:26px;font-weight:700;color:#c1121f;font-family:Georgia,serif">'+branding.name+'</div>'+
+          '<div style="font-size:15px;color:#555">'+(branding.address||'')+' | '+(branding.phone||'')+'</div>'+
+          '<div style="font-size:15px;font-weight:700;color:#004085;margin-top:4px">MOTTO: '+(branding.motto||'').toUpperCase()+'</div>'+
         '</div>'+
-        '<div style="background:#c1121f;color:#fff;text-align:center;padding:7px;font-weight:700;font-size:14px;margin-bottom:8px;text-transform:uppercase">END OF TERM '+term+' '+year+' REPORT CARD</div>'+
-        '<div style="display:grid;grid-template-columns:80px 1fr;gap:12px;margin-bottom:8px">'+
+        '<div style="background:#c1121f;color:#fff;text-align:center;padding:10px;font-weight:700;font-size:18px;margin-bottom:10px;text-transform:uppercase">END OF TERM '+term+' '+year+' REPORT CARD</div>'+
+        '<div style="display:grid;grid-template-columns:90px 1fr;gap:14px;margin-bottom:10px">'+
           '<div>'+photoHtml+'</div>'+
-          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px;padding:6px;background:#f8f9fa;border-radius:4px;border:1px solid #ddd">'+
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:15px;padding:8px;background:#f8f9fa;border-radius:4px;border:1px solid #ddd">'+
             '<div><strong>NAME:</strong> '+escapeHtml(stu.studentName||'')+'</div>'+
             '<div><strong>ID:</strong> '+escapeHtml(stu.studentId||'')+'</div>'+
             '<div><strong>CLASS:</strong> '+escapeHtml(stuClass)+'</div>'+
@@ -2109,26 +2161,30 @@ function renderReportResults(students){
             '<div><strong>DIVISION:</strong> '+divisionRoman(division)+'</div>'+
           '</div>'+
         '</div>'+
-        '<table style="width:100%;border-collapse:collapse;font-size:12px;border:1px solid #666">'+
+        '<table style="width:100%;border-collapse:collapse;font-size:15px;border:1px solid #666">'+
           '<thead style="background:#c1121f;color:#fff"><tr>'+subjectHeaderCells+'</tr></thead>'+
           '<tbody>'+(rows||'<tr><td colspan="9" style="padding:14px;text-align:center">No scores</td></tr>')+'</tbody>'+
         '</table>'+
-        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;border:1px solid #666;border-top:none;font-size:12px;text-align:center;background:#f8f9fa">'+
-          '<div style="padding:8px;border-right:1px solid #666">Total Marks: <b>'+totalMarksSum.toFixed(1)+'</b></div>'+
-          '<div style="padding:8px;border-right:1px solid #666">Average Mark: <b>'+averageMark.toFixed(1)+'</b></div>'+
-          '<div style="padding:8px;border-right:1px solid #666">Aggregates: <b>'+totalAggregates+'</b></div>'+
-          '<div style="padding:8px">Division: <b style="color:#c1121f">'+divisionRoman(division)+'</b></div>'+
+        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;border:1px solid #666;border-top:none;font-size:15px;text-align:center;background:#f8f9fa">'+
+          '<div style="padding:10px;border-right:1px solid #666">Average Mark: <b>'+averageMark.toFixed(1)+'</b></div>'+
+          '<div style="padding:10px;border-right:1px solid #666">Aggregates: <b>'+totalAggregates+'</b></div>'+
+          '<div style="padding:10px;border-right:1px solid #666">Division: <b style="color:#c1121f">'+divisionRoman(division)+'</b></div>'+
+          '<div style="padding:10px">Position: <b>'+position+' / '+totalPupils+'</b></div>'+
         '</div>'+
-        '<div style="margin-top:10px;border:1px solid #666;font-size:11px">'+
-          '<div style="padding:6px;border-bottom:1px solid #666;background:#f0f4ff"><strong>CLASS TEACHER\'S COMMENT:</strong> <em>'+teacherCommentFinal+'</em> <span style="float:right">'+ctSig+'</span></div>'+
-          '<div style="padding:6px;background:#f0f4ff"><strong>HEAD TEACHER\'S COMMENT:</strong> <em>'+headCommentFinal+'</em> <span style="float:right">'+hmSig+'</span></div>'+
+        '<div style="margin-top:12px;border:1px solid #666;font-size:14px">'+
+          '<div style="padding:8px;border-bottom:1px solid #666;background:#f0f4ff"><strong>CLASS TEACHER\'S COMMENT:</strong> <em>'+teacherCommentFinal+'</em> <span style="float:right"><strong>Signature:</strong> '+ctSig+'</span></div>'+
+          '<div style="padding:8px;background:#f0f4ff"><strong>HEAD TEACHER\'S COMMENT:</strong> <em>'+headCommentFinal+'</em> <span style="float:right"><strong>Signature:</strong> '+hmSig+'</span></div>'+
         '</div>'+
-        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px;font-size:11px">'+
-          '<div style="border:1px solid #666;padding:5px;text-align:center"><strong>Next Term Begins:</strong> '+(branding.termStartDate||'N/A')+'</div>'+
-          '<div style="border:1px solid #666;padding:5px;text-align:center"><strong>Fees Balance:</strong> <span class="fee-balance" data-student-id="'+stu.studentId+'">Loading...</span></div>'+
-          '<div style="border:1px solid #666;padding:5px;text-align:center"><strong>Scan to Verify</strong><div data-qr="'+escapeHtml(qrText)+'"></div></div>'+
+        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:12px;font-size:14px">'+
+          '<div style="border:1px solid #666;padding:7px;text-align:center"><strong>Next Term Begins:</strong> '+(branding.termStartDate||'N/A')+'</div>'+
+          '<div style="border:1px solid #666;padding:7px;text-align:center"><strong>Fees Balance:</strong> <span class="fee-balance" data-student-id="'+stu.studentId+'">Loading...</span></div>'+
+          '<div style="border:1px solid #666;padding:7px;text-align:center"><strong>Scan to Verify</strong><div data-qr="'+escapeHtml(qrText)+'"></div></div>'+
         '</div>'+
-        '<div style="text-align:center;margin-top:8px;font-size:11px;color:#c1121f;font-weight:700">This report is invalid without school stamp</div>'+
+        '<div style="margin-top:12px;page-break-inside:avoid">'+
+          '<div style="font-size:14px;font-weight:700;color:#c1121f;margin-bottom:6px">📊 GRADING SCALE</div>'+
+          gradingScaleHtml+
+        '</div>'+
+        '<div style="text-align:center;margin-top:10px;font-size:13px;color:#c1121f;font-weight:700">This report is invalid without school stamp</div>'+
       '</div>'+
     '</div>';
   });
@@ -2262,7 +2318,7 @@ function renderMiniReports(){
   f.forEach(function(s){
     var subjects=Object.keys(s.scores||{}).sort();
     var tableRows='',sumAvg=0,cnt=0;
-    var aggregates=[];
+    var aggregates=[],hasF9=false;
 
     if(subjects.length===0){
       tableRows='<tr><td colspan="4" style="text-align:center;color:#999;padding:10px">No scores</td></tr>';
@@ -2275,18 +2331,18 @@ function renderMiniReports(){
         if(includeMOT){used.push(mot);d++;}
         if(includeEOT){used.push(eot);d++;}
         if(d===0)return;
-        var totalMarks=used.reduce(function(a,b){return a+b;},0);
-        var avg=totalMarks/d;
-        var grade=primaryGradeFromPct(avg);
+        var averageMark=used.reduce(function(a,b){return a+b;},0)/d;
+        var grade=primaryGradeFromPct(averageMark);
         var agg=primaryGradeToAggregate(grade);
-        sumAvg+=avg;cnt++;
+        if(grade==='F9')hasF9=true;
+        sumAvg+=averageMark;cnt++;
         aggregates.push(agg);
-        tableRows+='<tr><td class="mini-subject">'+escapeHtml(sub)+'</td><td class="mini-pct">'+totalMarks.toFixed(0)+'</td><td class="mini-grade">'+grade+'</td><td class="mini-pts">'+agg+'</td></tr>';
+        tableRows+='<tr><td class="mini-subject">'+escapeHtml(sub.toUpperCase())+'</td><td class="mini-pct">'+averageMark.toFixed(1)+'</td><td class="mini-grade">'+grade+'</td><td class="mini-pts">'+agg+'</td></tr>';
       });
     }
     var avgMark=cnt>0?sumAvg/cnt:0;
     var totalAggs=aggregates.reduce(function(a,b){return a+b;},0);
-    var division=divisionFromAggregates(aggregates);
+    var division=divisionFromAggregates(aggregates,hasF9);
     var remark=remarkFromAverage(avgMark);
     var position=posMap[s.studentId]||'—';
 
@@ -2301,7 +2357,7 @@ function renderMiniReports(){
       '<div class="photo-container"><div class="photo-placeholder" style="width:75px;height:75px">'+photoHtml+'</div></div>'+
       '<div class="student-name">'+escapeHtml((s.studentName||'').toUpperCase())+'</div>'+
       '<div class="student-meta"><span>ID: '+escapeHtml(s.studentId||'')+'</span><span>Class: '+escapeHtml(s.class||'')+'</span><span>Stream: '+escapeHtml(s.stream||'—')+'</span><span>Term: '+escapeHtml(term)+'</span></div>'+
-      '<table class="mini-table"><thead><tr><th>Subject</th><th>Total Marks</th><th>Grade</th><th>Agg</th></tr></thead><tbody>'+tableRows+'</tbody></table>'+
+      '<table class="mini-table"><thead><tr><th>Subject</th><th>Average</th><th>Grade</th><th>Agg</th></tr></thead><tbody>'+tableRows+'</tbody></table>'+
       '<div class="average-row"><span>Average Mark: '+(cnt>0?avgMark.toFixed(1):'---')+'</span><span>Aggregates: '+totalAggs+'</span><span>Division: '+divisionRoman(division)+'</span></div>'+
       '<div class="average-row" style="justify-content:center"><span>POSITION '+position+' OUT OF '+totalPupils+'</span></div>'+
       status+
