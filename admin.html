@@ -908,7 +908,11 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 
 <script>
 /* ============================================================
-   EduTrack Pro Admin v35.0 — PRIMARY (Uganda)
+   EduTrack Pro Admin v36.0 — PRIMARY (Uganda)
+   - Compact grading scale
+   - P7 rule for missing essential subject / no marks
+   - Empty photo box when no photo
+   - Position & Division shown once
    ============================================================ */
 var APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbyz6t-MuZyPH7yNw9kPtjos-XfzlYXMKYiDwNKCDAUbhibsz62NGlH6OT4Wgd2wYIjoOA/exec';
 var FACE_CONFIG={modelPath:'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/',recognitionThreshold:0.55,storageKey:'registeredFaces',attendanceKey:'attendanceRecords'};
@@ -991,6 +995,17 @@ function remarkFromAverage(avg){
   return 'Double Your Efforts';
 }
 
+var ESSENTIAL_SUBJECTS = ['english','mathematics','science','social studies'];
+function hasEssentialSubjects(scoredSubjectNames){
+  if(!scoredSubjectNames || scoredSubjectNames.length === 0) return false;
+  var lower = scoredSubjectNames.map(function(s){ return String(s).toLowerCase().trim(); });
+  var hasEng = lower.indexOf('english') !== -1;
+  var hasMath = lower.indexOf('mathematics') !== -1;
+  var hasSci = lower.indexOf('science') !== -1;
+  var hasSoc = (lower.indexOf('social studies') !== -1) || (lower.indexOf('social study') !== -1) || (lower.indexOf('sst') !== -1);
+  return hasEng && hasMath && hasSci && hasSoc;
+}
+
 function buildGradingScaleTable(){
   var a = parseFloat(document.getElementById('gradeA')?.value) || 80;
   var b = parseFloat(document.getElementById('gradeB')?.value) || 70;
@@ -1000,32 +1015,28 @@ function buildGradingScaleTable(){
   var f = parseFloat(document.getElementById('gradeF')?.value) || 30;
   var g = parseFloat(document.getElementById('gradeG')?.value) || 20;
   var h = parseFloat(document.getElementById('gradeH')?.value) || 10;
+
   var rows = [
-    ['D1', a + ' – 100', '1'],
-    ['D2', b + ' – ' + (a-1), '2'],
-    ['C3', c + ' – ' + (b-1), '3'],
-    ['C4', d + ' – ' + (c-1), '4'],
-    ['C5', e + ' – ' + (d-1), '5'],
-    ['C6', f + ' – ' + (e-1), '6'],
-    ['P7', g + ' – ' + (f-1), '7'],
-    ['P8', h + ' – ' + (g-1), '8'],
-    ['F9', '0 – ' + (h-1), '9']
+    ['D1', a + '–100', '1'],
+    ['D2', b + '–' + (a-1), '2'],
+    ['C3', c + '–' + (b-1), '3'],
+    ['C4', d + '–' + (c-1), '4'],
+    ['C5', e + '–' + (d-1), '5'],
+    ['C6', f + '–' + (e-1), '6'],
+    ['P7', g + '–' + (f-1), '7'],
+    ['P8', h + '–' + (g-1), '8'],
+    ['F9', '0–' + (h-1), '9']
   ];
-  var h_ = '<table style="width:100%;border-collapse:collapse;font-size:13px;border:1px solid #666">' +
+
+  var out = '<table style="width:100%;border-collapse:collapse;font-size:10px;border:1px solid #666">' +
     '<thead style="background:#c1121f;color:#fff"><tr>' +
-    '<th style="padding:5px;border:1px solid #fff">GRADE</th>' +
-    '<th style="padding:5px;border:1px solid #fff">MARKS</th>' +
-    '<th style="padding:5px;border:1px solid #fff">AGGREGATE</th>' +
-    '</tr></thead><tbody>';
-  rows.forEach(function(r){
-    h_ += '<tr>' +
-      '<td style="padding:5px;border:1px solid #666;text-align:center;font-weight:700">' + r[0] + '</td>' +
-      '<td style="padding:5px;border:1px solid #666;text-align:center">' + r[1] + '</td>' +
-      '<td style="padding:5px;border:1px solid #666;text-align:center">' + r[2] + '</td>' +
-    '</tr>';
-  });
-  h_ += '</tbody></table>';
-  return h_;
+      rows.map(function(r){ return '<th style="padding:2px;border:1px solid #fff;font-weight:700">'+r[0]+'</th>'; }).join('') +
+    '</tr></thead><tbody><tr>' +
+      rows.map(function(r){ return '<td style="padding:2px;border:1px solid #666;text-align:center">'+r[1]+'</td>'; }).join('') +
+    '</tr><tr>' +
+      rows.map(function(r){ return '<td style="padding:2px;border:1px solid #666;text-align:center;color:#c1121f;font-weight:700">'+r[2]+'</td>'; }).join('') +
+    '</tr></tbody></table>';
+  return out;
 }
 
 function showToast(msg,type){
@@ -2045,7 +2056,6 @@ function renderReportResults(students){
   var includeMOT=branding.examIncludeMOT!==false;
   var includeEOT=branding.examIncludeEOT!==false;
 
-  // positions
   var totals=students.map(function(s){
     var subjects=Object.keys(s.scores||{});
     var sum=0,count=0;
@@ -2077,26 +2087,51 @@ function renderReportResults(students){
     var totalAvgSum=0,count=0;
     var aggregates=[];
     var hasF9=false;
+    var scoredSubjectNames=[];
+    var anyMarkEntered=false;
 
     subjects.forEach(function(subj){
       var sv=scores[subj]||{};
       var init=(sv.teacherInitials||'—').toUpperCase();
       var bot=parseFloat(sv.bot)||0,mot=parseFloat(sv.mot)||0,eot=parseFloat(sv.eot)||0;
+
+      var hasBot=includeBOT && sv.bot!==undefined && sv.bot!=='' && !isNaN(bot);
+      var hasMot=includeMOT && sv.mot!==undefined && sv.mot!=='' && !isNaN(mot);
+      var hasEot=includeEOT && sv.eot!==undefined && sv.eot!=='' && !isNaN(eot);
+
       var used=[],denom=0;
-      if(includeBOT){used.push(bot);denom++;}
-      if(includeMOT){used.push(mot);denom++;}
-      if(includeEOT){used.push(eot);denom++;}
-      if(denom===0)return;
+      if(hasBot){used.push(bot);denom++;}
+      if(hasMot){used.push(mot);denom++;}
+      if(hasEot){used.push(eot);denom++;}
+
+      if(denom===0){
+        rows+='<tr>'+
+          '<td style="padding:6px;border:1px solid #666;font-weight:700;font-size:16px">'+escapeHtml(subj.toUpperCase())+'</td>'+
+          (includeBOT?'<td style="border:1px solid #666;text-align:center;font-size:16px">—</td>':'')+
+          (includeMOT?'<td style="border:1px solid #666;text-align:center;font-size:16px">—</td>':'')+
+          (includeEOT?'<td style="border:1px solid #666;text-align:center;font-size:16px">—</td>':'')+
+          '<td style="padding:6px;border:1px solid #666;text-align:center;font-weight:700;font-size:16px">—</td>'+
+          '<td style="padding:6px;border:1px solid #666;text-align:center;font-weight:700;font-size:16px">—</td>'+
+          '<td style="padding:6px;border:1px solid #666;text-align:center;font-size:16px">—</td>'+
+          '<td style="padding:6px;border:1px solid #666;font-size:15px">No marks</td>'+
+          '<td style="padding:6px;border:1px solid #666;text-align:center;font-weight:700;font-size:15px">'+escapeHtml(init)+'</td>'+
+        '</tr>';
+        return;
+      }
+
+      anyMarkEntered=true;
+      scoredSubjectNames.push(subj);
+
       var averageMark=used.reduce(function(a,b){return a+b;},0)/denom;
       var grade=primaryGradeFromPct(averageMark);
       var remark=remarkFromAverage(averageMark);
       var agg=primaryGradeToAggregate(grade);
-      if(grade==='F9') hasF9=true;
+      if(grade==='F9')hasF9=true;
 
       var midCells='';
-      if(includeBOT)midCells+='<td style="border:1px solid #666;text-align:center;font-size:16px">'+(bot||'—')+'</td>';
-      if(includeMOT)midCells+='<td style="border:1px solid #666;text-align:center;font-size:16px">'+(mot||'—')+'</td>';
-      if(includeEOT)midCells+='<td style="border:1px solid #666;text-align:center;font-size:16px">'+(eot||'—')+'</td>';
+      if(includeBOT)midCells+='<td style="border:1px solid #666;text-align:center;font-size:16px">'+(hasBot?bot:'—')+'</td>';
+      if(includeMOT)midCells+='<td style="border:1px solid #666;text-align:center;font-size:16px">'+(hasMot?mot:'—')+'</td>';
+      if(includeEOT)midCells+='<td style="border:1px solid #666;text-align:center;font-size:16px">'+(hasEot?eot:'—')+'</td>';
 
       rows+='<tr>'+
         '<td style="padding:6px;border:1px solid #666;font-weight:700;font-size:16px">'+escapeHtml(subj.toUpperCase())+'</td>'+
@@ -2113,10 +2148,24 @@ function renderReportResults(students){
       aggregates.push(agg);
     });
 
+    var forceP7=false;
+    if(!anyMarkEntered){forceP7=true;}
+    else if(!hasEssentialSubjects(scoredSubjectNames)){forceP7=true;}
+
     var averageMark=count>0?totalAvgSum/count:0;
     var totalAggregates=aggregates.reduce(function(a,b){return a+b;},0);
-    var division=divisionFromAggregates(aggregates,hasF9);
-    var overallRemark=remarkFromAverage(averageMark);
+    var division,overallRemark;
+
+    if(forceP7){
+      totalAggregates=7;
+      hasF9=false;
+      division='II';
+      overallRemark='Improve';
+    } else {
+      division=divisionFromAggregates(aggregates,hasF9);
+      overallRemark=remarkFromAverage(averageMark);
+    }
+
     var position=positionMap[stu.studentId]||'—';
 
     var tMotiv={'Excellent':'Outstanding work! Keep up the excellent standard.','Very Good':'Very good performance. Aim even higher next term.','Good':'Good effort. With more practice you can do better.','Fair':'Fair progress. Focus on your weak areas.','Improve':'You can do better. Please work harder.','Double Your Efforts':'Improve your performance. Seek help where needed.'};
@@ -2125,7 +2174,7 @@ function renderReportResults(students){
     var headCommentFinal=customHeadComment?(customHeadComment+' — '+(hMotiv[overallRemark]||'')):(hMotiv[overallRemark]||overallRemark);
 
     var photo=getStudentPhoto(stu.studentId,stu.studentName,stuClass);
-    var photoHtml=photo?'<img src="'+photo+'" style="width:90px;height:110px;object-fit:cover;border:2px solid #333;border-radius:4px" />':'<div style="width:90px;height:110px;border:2px dashed #999;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:12px;color:#999">PHOTO</div>';
+    var photoHtml=photo?'<img src="'+photo+'" style="width:90px;height:110px;object-fit:cover;border:2px solid #333;border-radius:4px" />':'<div style="width:90px;height:110px;border:2px solid #999;border-radius:4px;background:#fff"></div>';
 
     var qrText=JSON.stringify({id:stu.studentId,name:stu.studentName,class:stuClass,term:term,year:year,avg:averageMark.toFixed(1),agg:totalAggregates,div:division,pos:position});
     var hmSig=branding.signature?'<img src="'+branding.signature+'" style="height:34px;display:inline-block;vertical-align:middle" />':'....................';
@@ -2165,11 +2214,9 @@ function renderReportResults(students){
           '<thead style="background:#c1121f;color:#fff"><tr>'+subjectHeaderCells+'</tr></thead>'+
           '<tbody>'+(rows||'<tr><td colspan="9" style="padding:14px;text-align:center">No scores</td></tr>')+'</tbody>'+
         '</table>'+
-        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;border:1px solid #666;border-top:none;font-size:15px;text-align:center;background:#f8f9fa">'+
+        '<div style="display:grid;grid-template-columns:1fr 1fr;border:1px solid #666;border-top:none;font-size:15px;text-align:center;background:#f8f9fa">'+
           '<div style="padding:10px;border-right:1px solid #666">Average Mark: <b>'+averageMark.toFixed(1)+'</b></div>'+
-          '<div style="padding:10px;border-right:1px solid #666">Aggregates: <b>'+totalAggregates+'</b></div>'+
-          '<div style="padding:10px;border-right:1px solid #666">Division: <b style="color:#c1121f">'+divisionRoman(division)+'</b></div>'+
-          '<div style="padding:10px">Position: <b>'+position+' / '+totalPupils+'</b></div>'+
+          '<div style="padding:10px">Aggregates: <b>'+totalAggregates+'</b></div>'+
         '</div>'+
         '<div style="margin-top:12px;border:1px solid #666;font-size:14px">'+
           '<div style="padding:8px;border-bottom:1px solid #666;background:#f0f4ff"><strong>CLASS TEACHER\'S COMMENT:</strong> <em>'+teacherCommentFinal+'</em> <span style="float:right"><strong>Signature:</strong> '+ctSig+'</span></div>'+
@@ -2180,11 +2227,11 @@ function renderReportResults(students){
           '<div style="border:1px solid #666;padding:7px;text-align:center"><strong>Fees Balance:</strong> <span class="fee-balance" data-student-id="'+stu.studentId+'">Loading...</span></div>'+
           '<div style="border:1px solid #666;padding:7px;text-align:center"><strong>Scan to Verify</strong><div data-qr="'+escapeHtml(qrText)+'"></div></div>'+
         '</div>'+
-        '<div style="margin-top:12px;page-break-inside:avoid">'+
-          '<div style="font-size:14px;font-weight:700;color:#c1121f;margin-bottom:6px">📊 GRADING SCALE</div>'+
+        '<div style="margin-top:10px;page-break-inside:avoid">'+
+          '<div style="font-size:13px;font-weight:700;color:#c1121f;margin-bottom:4px">📊 GRADING SCALE</div>'+
           gradingScaleHtml+
         '</div>'+
-        '<div style="text-align:center;margin-top:10px;font-size:13px;color:#c1121f;font-weight:700">This report is invalid without school stamp</div>'+
+        '<div style="text-align:center;margin-top:8px;font-size:13px;color:#c1121f;font-weight:700">This report is invalid without school stamp</div>'+
       '</div>'+
     '</div>';
   });
@@ -2319,6 +2366,7 @@ function renderMiniReports(){
     var subjects=Object.keys(s.scores||{}).sort();
     var tableRows='',sumAvg=0,cnt=0;
     var aggregates=[],hasF9=false;
+    var scoredSubjectNames=[],anyMarkEntered=false;
 
     if(subjects.length===0){
       tableRows='<tr><td colspan="4" style="text-align:center;color:#999;padding:10px">No scores</td></tr>';
@@ -2326,11 +2374,18 @@ function renderMiniReports(){
       subjects.forEach(function(sub){
         var sv=s.scores[sub]||{};
         var bot=parseFloat(sv.bot)||0,mot=parseFloat(sv.mot)||0,eot=parseFloat(sv.eot)||0;
+        var hasBot=includeBOT && sv.bot!==undefined && sv.bot!=='' && !isNaN(bot);
+        var hasMot=includeMOT && sv.mot!==undefined && sv.mot!=='' && !isNaN(mot);
+        var hasEot=includeEOT && sv.eot!==undefined && sv.eot!=='' && !isNaN(eot);
         var used=[],d=0;
-        if(includeBOT){used.push(bot);d++;}
-        if(includeMOT){used.push(mot);d++;}
-        if(includeEOT){used.push(eot);d++;}
-        if(d===0)return;
+        if(hasBot){used.push(bot);d++;}
+        if(hasMot){used.push(mot);d++;}
+        if(hasEot){used.push(eot);d++;}
+        if(d===0){
+          tableRows+='<tr><td class="mini-subject">'+escapeHtml(sub.toUpperCase())+'</td><td class="mini-pct">—</td><td class="mini-grade">—</td><td class="mini-pts">—</td></tr>';
+          return;
+        }
+        anyMarkEntered=true;scoredSubjectNames.push(sub);
         var averageMark=used.reduce(function(a,b){return a+b;},0)/d;
         var grade=primaryGradeFromPct(averageMark);
         var agg=primaryGradeToAggregate(grade);
@@ -2340,15 +2395,27 @@ function renderMiniReports(){
         tableRows+='<tr><td class="mini-subject">'+escapeHtml(sub.toUpperCase())+'</td><td class="mini-pct">'+averageMark.toFixed(1)+'</td><td class="mini-grade">'+grade+'</td><td class="mini-pts">'+agg+'</td></tr>';
       });
     }
+    var forceP7=false;
+    if(!anyMarkEntered){forceP7=true;}
+    else if(!hasEssentialSubjects(scoredSubjectNames)){forceP7=true;}
+
     var avgMark=cnt>0?sumAvg/cnt:0;
     var totalAggs=aggregates.reduce(function(a,b){return a+b;},0);
-    var division=divisionFromAggregates(aggregates,hasF9);
-    var remark=remarkFromAverage(avgMark);
+    var division,remark;
+    if(forceP7){
+      totalAggs=7;
+      hasF9=false;
+      division='II';
+      remark='Improve';
+    } else {
+      division=divisionFromAggregates(aggregates,hasF9);
+      remark=remarkFromAverage(avgMark);
+    }
     var position=posMap[s.studentId]||'—';
 
     var status=cnt===0?'<div class="status-bar no-data">No Data</div>':'<div class="status-bar">'+escapeHtml(remark.toUpperCase())+'</div>';
     var photo=getStudentPhoto(s.studentId,s.studentName,cls);
-    var photoHtml=photo?'<img src="'+photo+'" />':(branding.badge?'<img src="'+branding.badge+'" />':'<span style="font-size:24px">👤</span>');
+    var photoHtml=photo?'<img src="'+photo+'" />':'<div style="width:100%;height:100%;background:#fff"></div>';
     var qrText=JSON.stringify({id:s.studentId,name:s.studentName,class:s.class,avg:avgMark.toFixed(1),agg:totalAggs,div:division,pos:position});
 
     h+='<div class="mini-report-card" style="position:relative">'+
@@ -2358,8 +2425,12 @@ function renderMiniReports(){
       '<div class="student-name">'+escapeHtml((s.studentName||'').toUpperCase())+'</div>'+
       '<div class="student-meta"><span>ID: '+escapeHtml(s.studentId||'')+'</span><span>Class: '+escapeHtml(s.class||'')+'</span><span>Stream: '+escapeHtml(s.stream||'—')+'</span><span>Term: '+escapeHtml(term)+'</span></div>'+
       '<table class="mini-table"><thead><tr><th>Subject</th><th>Average</th><th>Grade</th><th>Agg</th></tr></thead><tbody>'+tableRows+'</tbody></table>'+
-      '<div class="average-row"><span>Average Mark: '+(cnt>0?avgMark.toFixed(1):'---')+'</span><span>Aggregates: '+totalAggs+'</span><span>Division: '+divisionRoman(division)+'</span></div>'+
-      '<div class="average-row" style="justify-content:center"><span>POSITION '+position+' OUT OF '+totalPupils+'</span></div>'+
+      '<div class="average-row" style="flex-wrap:wrap;justify-content:space-around">'+
+        '<span>Avg: '+(cnt>0?avgMark.toFixed(1):'---')+'</span>'+
+        '<span>Agg: '+totalAggs+'</span>'+
+        '<span>Div: '+divisionRoman(division)+'</span>'+
+        '<span>Pos: '+position+'/'+totalPupils+'</span>'+
+      '</div>'+
       status+
       '<div style="text-align:center;margin-top:8px"><div data-qr="'+escapeHtml(qrText)+'" style="display:inline-block"></div></div>'+
       '<div style="text-align:center;margin-top:10px;padding-top:8px;border-top:1px solid #e0e0e0;font-size:10px;color:#888">Powered by <strong>EduTrack Pro</strong></div>'+
