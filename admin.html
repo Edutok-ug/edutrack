@@ -265,6 +265,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
         <button class="nav-link" data-tab="notices" onclick="switchTab('notices')"><i class="fas fa-bullhorn"></i> Notice Board</button>
       </div>
     </div>
+    <button class="nav-link" data-tab="promote" onclick="switchTab('promote')"><i class="fas fa-arrow-up"></i> Promote Pupils</button>
     <button class="nav-link" data-tab="chat" onclick="switchTab('chat')"><i class="fas fa-comment-dots"></i> Chat</button>
     <button class="nav-link" data-tab="settings" onclick="switchTab('settings')"><i class="fas fa-cog"></i> Settings</button>
     <div class="nav-user"><div class="user-avatar" id="navUserAvatar">A</div><div class="user-info"><div class="user-name" id="navUserName">Admin</div><div class="user-role">👨‍💼 Admin</div></div></div>
@@ -276,7 +277,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
   <button class="bn-item active" data-tab="dashboard" onclick="switchTab('dashboard')"><i class="fas fa-chart-pie"></i><span>Home</span></button>
   <button class="bn-item" data-tab="register" onclick="switchTab('register')"><i class="fas fa-user-plus"></i><span>Register</span></button>
   <button class="bn-item" data-tab="scores" onclick="switchTab('scores')"><i class="fas fa-edit"></i><span>Scores</span></button>
-  <button class="bn-item" data-tab="attendance" onclick="switchTab('attendance')"><i class="fas fa-clipboard-check"></i><span>Attend</span></button>
+  <button class="bn-item" data-tab="promote" onclick="switchTab('promote')"><i class="fas fa-arrow-up"></i><span>Promote</span></button>
   <button class="bn-item" data-tab="reports" onclick="switchTab('reports')"><i class="fas fa-file-alt"></i><span>Reports</span></button>
 </div>
 
@@ -608,6 +609,47 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
   <div id="documentPreview" style="margin-top:20px"><p style="color:#999;text-align:center;padding:20px">Generate a document first.</p></div>
 </div>
 
+<!-- PROMOTE -->
+<div id="tabPromote" class="form-section">
+  <h2 class="section-title"><i class="fas fa-arrow-up" style="color:var(--primary)"></i> Promote Pupils</h2>
+  <p class="section-desc">Move pupils from one class to the next. Profiles are moved to the destination class sheet.</p>
+
+  <div style="background:var(--surface-2);padding:14px;border-radius:var(--radius-md);border:1px solid var(--border);margin-bottom:15px">
+    <div class="form-row-3">
+      <div class="form-group">
+        <label>From Class *</label>
+        <select id="promoteFromClass" onchange="loadPromotePupils()">
+          <option value="">Select source class</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>To Class *</label>
+        <select id="promoteToClass">
+          <option value="">Select destination class</option>
+        </select>
+      </div>
+      <div class="form-group" style="display:flex;align-items:flex-end">
+        <button class="btn btn-primary btn-block" onclick="loadPromotePupils()">📋 Load Pupils</button>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+    <button class="btn btn-success btn-sm" onclick="selectAllPromote(true)">✅ Select All</button>
+    <button class="btn btn-secondary btn-sm" onclick="selectAllPromote(false)">✖️ Clear</button>
+    <input type="text" id="promoteSearch" placeholder="🔍 filter…" oninput="filterPromoteList()" style="flex:1;min-width:200px;padding:10px;border:2px solid var(--border);border-radius:8px;font-family:inherit;font-size:14px" />
+  </div>
+
+  <div id="promoteList" style="background:var(--surface-2);padding:12px;border-radius:8px;max-height:500px;overflow-y:auto">
+    <p style="color:#999;text-align:center;padding:20px">Select a class and click Load Pupils.</p>
+  </div>
+
+  <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:20px">
+    <button class="btn btn-secondary" onclick="loadPromotePupils()">🔄 Reset</button>
+    <button class="btn btn-primary" id="promoteSubmitBtn" onclick="doPromote()">🚀 Promote Selected</button>
+  </div>
+</div>
+
 <!-- TIMETABLE -->
 <div id="tabTimetable" class="form-section">
   <h2 class="section-title"><i class="fas fa-clock" style="color:var(--primary)"></i> Timetable</h2>
@@ -757,18 +799,32 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
   <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px">
     <h4 style="color:var(--primary);font-size:14px;margin-bottom:10px">📝 Exams Included in Reports</h4>
     <div style="padding:14px;background:var(--surface-2);border-radius:var(--radius-md)">
+      <p style="font-size:12px;color:var(--text-2);margin-bottom:10px">Choose which assessments are shown on report cards. Schools doing only MOT &amp; EOT can turn off BOT.</p>
+      <label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:13px;font-weight:600"><input type="checkbox" id="examIncludeBOT" checked /> Include BOT</label>
+      <label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:13px;font-weight:600"><input type="checkbox" id="examIncludeMOT" checked /> Include MOT</label>
+      <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600"><input type="checkbox" id="examIncludeEOT" checked /> Include EOT</label>
+    </div>
+  </div>
+  <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px">
+    <h4 style="color:var(--primary);font-size:14px;margin-bottom:10px">🎓 Promotion Rules (applies on Term III)</h4>
+    <div style="padding:14px;background:var(--surface-2);border-radius:var(--radius-md)">
       <p style="font-size:12px;color:var(--text-2);margin-bottom:10px">
-        Choose which assessments are shown on report cards. Schools doing only MOT &amp; EOT can turn off BOT.
+        Shown on Term III reports only. On Term III, each report will display <strong>PROMOTED</strong> or <strong>NOT PROMOTED</strong> based on the rule below.
       </p>
-      <label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:13px;font-weight:600">
-        <input type="checkbox" id="examIncludeBOT" checked /> Include BOT
-      </label>
-      <label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:13px;font-weight:600">
-        <input type="checkbox" id="examIncludeMOT" checked /> Include MOT
-      </label>
-      <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600">
-        <input type="checkbox" id="examIncludeEOT" checked /> Include EOT
-      </label>
+      <div class="form-row-2">
+        <div class="form-group">
+          <label>Promotion Criteria</label>
+          <select id="settingsPromotionMethod">
+            <option value="average">Based on Average Mark</option>
+            <option value="division">Based on Division</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Minimum Required</label>
+          <input type="text" id="settingsPromotionThreshold" placeholder="e.g. 50 (for avg) or I,II,III (for division)" />
+          <div style="font-size:11px;color:var(--text-3);margin-top:4px" id="promotionHint">For average: enter a number (e.g. 50). For division: enter I, II, III or IV.</div>
+        </div>
+      </div>
     </div>
   </div>
   <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px">
@@ -908,13 +964,12 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 
 <script>
 /* ============================================================
-   EduTrack Pro Admin v36.0 — PRIMARY (Uganda)
-   - Compact grading scale
-   - P7 rule for missing essential subject / no marks
-   - Empty photo box when no photo
-   - Position & Division shown once
+   EduTrack Pro Admin v37.0 — PRIMARY (Uganda)
+   - Promotion feature (Term III)
+   - One-time school-details fill from Google Sheets
+   - Compact grading scale, P7 rule, empty photo box
    ============================================================ */
-var APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbyz6t-MuZyPH7yNw9kPtjos-XfzlYXMKYiDwNKCDAUbhibsz62NGlH6OT4Wgd2wYIjoOA/exec';
+var APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbzR0aYrIB3_4qlyio3mQiIKEGHVQ-DbdwPCpGCxAv4b3TXylLrFdumms0KCUNcW5WJXWQ/exec';
 var FACE_CONFIG={modelPath:'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/',recognitionThreshold:0.55,storageKey:'registeredFaces',attendanceKey:'attendanceRecords'};
 var FACE_DETECTION_OPTIONS=null;
 var SUBJECT_CODES={'English':'ENG','Mathematics':'MTC','Science':'SCI','Social Studies':'SST','Religious Education':'RE','Luganda':'LUG','Kiswahili':'KIS','Local Language':'LL','Reading':'REA','Writing':'WRI','Physical Education':'PE','Music':'MUS','Art and Craft':'ART','Agriculture':'AGR','Computer Studies':'CMP'};
@@ -938,6 +993,7 @@ var qrStream=null,qrScanInterval=null,qrScanHistory=[],qrLastScanTime=0;
 var pendingAssignments=[];
 var PHOTO_CACHE = { byClass:{}, loading:{} };
 var __classPhotos = [];
+var promoteData = [];
 
 /* ============ UTILITIES ============ */
 function getTodayDate(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
@@ -946,7 +1002,6 @@ function escapeHtml(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c
 function subjectCodeFor(n){return SUBJECT_CODES[n]||'—';}
 function normalizeNameKey(name){return String(name||'').toLowerCase().replace(/[\s._-]+/g,'');}
 
-/* Grading: D1, D2, C3, C4, C5, C6, P7, P8, F9 */
 function primaryGradeFromPct(pct){
   var a = parseFloat(document.getElementById('gradeA')?.value) || 80;
   var b = parseFloat(document.getElementById('gradeB')?.value) || 70;
@@ -1170,7 +1225,9 @@ function getSchoolBranding(){
     termEndDate:s.termEndDate||'',
     examIncludeBOT: s.examIncludeBOT===undefined ? true : (s.examIncludeBOT===true||s.examIncludeBOT==='true'),
     examIncludeMOT: s.examIncludeMOT===undefined ? true : (s.examIncludeMOT===true||s.examIncludeMOT==='true'),
-    examIncludeEOT: s.examIncludeEOT===undefined ? true : (s.examIncludeEOT===true||s.examIncludeEOT==='true')
+    examIncludeEOT: s.examIncludeEOT===undefined ? true : (s.examIncludeEOT===true||s.examIncludeEOT==='true'),
+    promotionMethod: s.promotionMethod || 'average',
+    promotionThreshold: s.promotionThreshold || '50'
   };
 }
 function getCustomTeacherComment(){var school=getActiveSchool();try{return JSON.parse(localStorage.getItem('schoolSettings_'+school)||'{}').teacherCustomComment||'';}catch(e){return '';}}
@@ -1199,7 +1256,7 @@ function appLogout(){sessionStorage.removeItem('authSession');stopCamera();stopF
 function switchTab(tab){
   document.querySelectorAll('.nav-link').forEach(function(el){el.classList.remove('active');});
   document.querySelectorAll('.form-section').forEach(function(el){el.classList.remove('active');});
-  var map={dashboard:'tabDashboard',register:'tabRegister',scores:'tabScores',attendance:'tabAttendance',facereg:'tabFaceReg',fees:'tabFees',expenses:'tabExpenses',reports:'tabReports',mini:'tabMini',documents:'tabDocuments',timetable:'tabTimetable',program:'tabProgram',notices:'tabNotices',chat:'tabChat',settings:'tabSettings'};
+  var map={dashboard:'tabDashboard',register:'tabRegister',scores:'tabScores',attendance:'tabAttendance',facereg:'tabFaceReg',fees:'tabFees',expenses:'tabExpenses',reports:'tabReports',mini:'tabMini',documents:'tabDocuments',promote:'tabPromote',timetable:'tabTimetable',program:'tabProgram',notices:'tabNotices',chat:'tabChat',settings:'tabSettings'};
   var t=document.getElementById(map[tab]||'tabDashboard');if(t)t.classList.add('active');
   document.querySelectorAll('.nav-link[data-tab="'+tab+'"]').forEach(function(b){b.classList.add('active');});
   document.querySelectorAll('.bn-item').forEach(function(b){b.classList.toggle('active',b.getAttribute('data-tab')===tab);});
@@ -1211,6 +1268,7 @@ function switchTab(tab){
   if(tab==='expenses')loadExpenses();
   if(tab==='reports'){clearReportSelection();fetchReportData();}
   if(tab==='mini'){loadMiniReports();}
+  if(tab==='promote'){populatePromoteClassSelects();}
   if(tab==='timetable'){var sel=document.getElementById('ttClassSelect');if(sel&&!sel.value)loadTimetable();}
   if(tab==='program')loadProgram();
   if(tab==='notices')loadNotices();
@@ -1259,6 +1317,8 @@ async function refreshBrandingFromSheet(){
         examIncludeBOT:(raw['Exam Include BOT']!=='false'),
         examIncludeMOT:(raw['Exam Include MOT']!=='false'),
         examIncludeEOT:(raw['Exam Include EOT']!=='false'),
+        promotionMethod:raw['Promotion Method']||'average',
+        promotionThreshold:raw['Promotion Threshold']||'50',
         teacherCustomComment:raw['Teacher Custom Comment']||'',
         headCustomComment:raw['Head Custom Comment']||'',
         driveRoot:raw['Drive Root']||'',
@@ -2055,6 +2115,7 @@ function renderReportResults(students){
   var includeBOT=branding.examIncludeBOT!==false;
   var includeMOT=branding.examIncludeMOT!==false;
   var includeEOT=branding.examIncludeEOT!==false;
+  var showPromotion = (term === 'III');
 
   var totals=students.map(function(s){
     var subjects=Object.keys(s.scores||{});
@@ -2166,6 +2227,26 @@ function renderReportResults(students){
       overallRemark=remarkFromAverage(averageMark);
     }
 
+    // Promotion status (Term III only)
+    var promotionHtml='';
+    if(showPromotion){
+      var promoMethod = branding.promotionMethod || 'average';
+      var promoThreshold = String(branding.promotionThreshold || '50');
+      var promoted = false;
+      if(promoMethod === 'average'){
+        var minAvg = parseFloat(promoThreshold) || 50;
+        promoted = (averageMark >= minAvg);
+      } else {
+        var order = {'I':1,'II':2,'III':3,'IV':4,'U':5};
+        var allowed = promoThreshold.toUpperCase().split(',').map(function(x){return x.trim();}).filter(Boolean);
+        if(allowed.length===0) allowed=['I','II','III'];
+        promoted = allowed.some(function(a){ return order[a] && order[division] && order[a] >= order[division]; });
+      }
+      promotionHtml = promoted
+        ? '<span style="background:#2d6a4f;color:#fff;padding:4px 14px;border-radius:20px;font-weight:700;font-size:14px">✅ PROMOTED</span>'
+        : '<span style="background:#c1121f;color:#fff;padding:4px 14px;border-radius:20px;font-weight:700;font-size:14px">❌ NOT PROMOTED</span>';
+    }
+
     var position=positionMap[stu.studentId]||'—';
 
     var tMotiv={'Excellent':'Outstanding work! Keep up the excellent standard.','Very Good':'Very good performance. Aim even higher next term.','Good':'Good effort. With more practice you can do better.','Fair':'Fair progress. Focus on your weak areas.','Improve':'You can do better. Please work harder.','Double Your Efforts':'Improve your performance. Seek help where needed.'};
@@ -2208,6 +2289,7 @@ function renderReportResults(students){
             '<div><strong>RESIDENCE:</strong> '+escapeHtml(stu.residence||'—')+'</div>'+
             '<div><strong>POSITION:</strong> '+position+' OUT OF '+totalPupils+'</div>'+
             '<div><strong>DIVISION:</strong> '+divisionRoman(division)+'</div>'+
+            (showPromotion?'<div style="grid-column:1/-1;text-align:center;margin-top:6px">'+promotionHtml+'</div>':'')+
           '</div>'+
         '</div>'+
         '<table style="width:100%;border-collapse:collapse;font-size:15px;border:1px solid #666">'+
@@ -2513,6 +2595,99 @@ function printDocument(){
   _runPrint('<div class="generated-document">'+html+'</div>');
 }
 
+/* ============ PROMOTE ============ */
+function populatePromoteClassSelects(){
+  var fromSel = document.getElementById('promoteFromClass');
+  var toSel   = document.getElementById('promoteToClass');
+  if(!fromSel || !toSel) return;
+  fromSel.innerHTML = '<option value="">Select source class</option>';
+  toSel.innerHTML   = '<option value="">Select destination class</option>';
+  CLASSES.forEach(function(c){
+    var o1 = document.createElement('option'); o1.value=c; o1.textContent=c; fromSel.appendChild(o1);
+    var o2 = document.createElement('option'); o2.value=c; o2.textContent=c; toSel.appendChild(o2);
+  });
+}
+async function loadPromotePupils(){
+  var fromClass = document.getElementById('promoteFromClass')?.value;
+  var toClass   = document.getElementById('promoteToClass')?.value;
+  var box = document.getElementById('promoteList');
+  if(!fromClass){ box.innerHTML = '<p style="color:#999;text-align:center;padding:20px">Select a source class.</p>'; return; }
+  if(!toClass){ box.innerHTML = '<p style="color:#999;text-align:center;padding:20px">Select a destination class.</p>'; return; }
+  if(fromClass === toClass){ box.innerHTML = '<p style="color:#c1121f;text-align:center;padding:20px">Source and destination must be different.</p>'; return; }
+  var sheetId = getClassSheetId(fromClass);
+  if(!sheetId){ box.innerHTML = '<p style="color:#c1121f;text-align:center;padding:20px">Source class sheet not configured.</p>'; return; }
+  box.innerHTML = '<p style="color:#999;text-align:center;padding:20px">Loading pupils…</p>';
+  try{
+    var r = await callAppsScript({action:'getStudents', sheetId: sheetId, school: getActiveSchool(), className: fromClass});
+    promoteData = (r.data?.students || []).map(function(s){ return { studentId: s.studentId, studentName: s.studentName, selected: true }; });
+    renderPromoteList();
+  }catch(e){
+    box.innerHTML = '<p style="color:#c1121f;text-align:center;padding:20px">'+e.message+'</p>';
+  }
+}
+function renderPromoteList(){
+  var box = document.getElementById('promoteList');
+  var fromClass = document.getElementById('promoteFromClass')?.value || '';
+  var toClass   = document.getElementById('promoteToClass')?.value || '';
+  var q = (document.getElementById('promoteSearch')?.value || '').toLowerCase();
+  if(!promoteData || promoteData.length === 0){
+    box.innerHTML = '<p style="color:#999;text-align:center;padding:20px">No pupils loaded.</p>';
+    return;
+  }
+  var filtered = q ? promoteData.filter(function(p){
+    return (p.studentId||'').toLowerCase().includes(q) || (p.studentName||'').toLowerCase().includes(q);
+  }) : promoteData;
+  var h = '<div style="font-weight:700;color:var(--primary);margin-bottom:8px">📋 '+escapeHtml(fromClass)+' → '+escapeHtml(toClass)+' ('+promoteData.length+' pupils)</div>';
+  h += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px">';
+  filtered.forEach(function(p){
+    var idx = promoteData.indexOf(p);
+    h += '<div class="attendance-check-item">' +
+      '<input type="checkbox" '+(p.selected?'checked':'')+' onchange="promoteData['+idx+'].selected = this.checked" />' +
+      '<label><span style="font-size:11px;color:#888">'+escapeHtml(p.studentId)+'</span> '+escapeHtml(p.studentName)+'</label>' +
+    '</div>';
+  });
+  h += '</div>';
+  box.innerHTML = h;
+}
+function filterPromoteList(){ renderPromoteList(); }
+function selectAllPromote(val){
+  promoteData.forEach(function(p){ p.selected = val; });
+  renderPromoteList();
+}
+async function doPromote(){
+  var fromClass = document.getElementById('promoteFromClass')?.value;
+  var toClass   = document.getElementById('promoteToClass')?.value;
+  if(!fromClass || !toClass || fromClass === toClass){
+    showToast('Select valid source and destination classes.', 'warning'); return;
+  }
+  var selected = promoteData.filter(function(p){ return p.selected; }).map(function(p){ return p.studentId; });
+  if(selected.length === 0){ showToast('No pupils selected.', 'warning'); return; }
+  if(!confirm('Promote '+selected.length+' pupils from '+fromClass+' to '+toClass+'? This will move their profiles.')) return;
+  var btn = document.getElementById('promoteSubmitBtn');
+  if(btn){ btn.disabled = true; btn.textContent = '⏳ Promoting…'; }
+  try{
+    var r = await callAppsScript({
+      action:'promotePupils',
+      school: getActiveSchool(),
+      fromClass: fromClass,
+      toClass: toClass,
+      studentIds: JSON.stringify(selected)
+    });
+    if(btn){ btn.disabled = false; btn.textContent = '🚀 Promote Selected'; }
+    if(r && r.success){
+      showToast('✅ '+r.data.moved+' pupils promoted to '+toClass, 'success');
+      updateStudentCount();
+      updateClassCards();
+      await loadPromotePupils();
+    } else {
+      showToast('❌ '+(r?.message || 'Promotion failed'), 'error');
+    }
+  }catch(e){
+    if(btn){ btn.disabled = false; btn.textContent = '🚀 Promote Selected'; }
+    showToast('❌ '+e.message, 'error');
+  }
+}
+
 /* ============ TIMETABLE ============ */
 async function loadTimetable(){
   var cls=document.getElementById('ttClassSelect')?.value;
@@ -2707,9 +2882,27 @@ function setChecked(id,v){
   var el=document.getElementById(id);
   if(el) el.checked = (v===undefined)?true:(v===true||v==='true'||v===1||v==='1');
 }
+function updatePromotionHint(){
+  var m = document.getElementById('settingsPromotionMethod')?.value || 'average';
+  var hint = document.getElementById('promotionHint');
+  if(!hint) return;
+  hint.textContent = (m === 'average')
+    ? 'For average: enter a number (e.g. 50). Pupils at or above this average are PROMOTED.'
+    : 'For division: enter I, II, III or IV. Pupils in this division or better are PROMOTED.';
+}
 async function loadSettings(){
   var school=getActiveSchool();if(!school)return;
   await refreshBrandingFromSheet();
+
+  // one-time auto-fill from master school list (fills blanks only)
+  var sCheck={};try{sCheck=JSON.parse(localStorage.getItem('schoolSettings_'+school)||'{}');}catch(e){}
+  if(!sCheck.schoolName || !sCheck.schoolPhone || !sCheck.schoolEmail){
+    try{
+      await callAppsScript({action:'fillSchoolDetails', school: school});
+      await refreshBrandingFromSheet();
+    }catch(e){}
+  }
+
   var s={};try{s=JSON.parse(localStorage.getItem('schoolSettings_'+school)||'{}');}catch(e){}
   schoolSettings=s;
   var set=function(id,v){var e=document.getElementById(id);if(e)e.value=v;};
@@ -2732,6 +2925,9 @@ async function loadSettings(){
   setChecked('examIncludeBOT',s.examIncludeBOT);
   setChecked('examIncludeMOT',s.examIncludeMOT);
   setChecked('examIncludeEOT',s.examIncludeEOT);
+  set('settingsPromotionMethod', s.promotionMethod || 'average');
+  set('settingsPromotionThreshold', s.promotionThreshold || '50');
+  updatePromotionHint();
   set('settingsFinanceSheet',s.financeSheet||'');
   set('settingsAttendanceSheet',s.attendanceSheet||'');
   set('settingsTimetableSheet',s.timetableSheet||'');
@@ -2771,6 +2967,8 @@ async function saveAllSettings(){
     examIncludeBOT:document.getElementById('examIncludeBOT')?.checked?'true':'false',
     examIncludeMOT:document.getElementById('examIncludeMOT')?.checked?'true':'false',
     examIncludeEOT:document.getElementById('examIncludeEOT')?.checked?'true':'false',
+    promotionMethod:get('settingsPromotionMethod')||'average',
+    promotionThreshold:get('settingsPromotionThreshold')||'50',
     financeSheet:get('settingsFinanceSheet'),attendanceSheet:get('settingsAttendanceSheet'),
     timetableSheet:get('settingsTimetableSheet'),
     teacherCustomComment:get('settingsTeacherComment'),headCustomComment:get('settingsHeadComment'),
@@ -3097,6 +3295,8 @@ document.addEventListener('DOMContentLoaded',async function(){
       }else showToast((r&&r.message)||'Signature upload failed','error');
     }catch(err){showToast(err.message,'error');}
   });
+
+  document.getElementById('settingsPromotionMethod')?.addEventListener('change', updatePromotionHint);
 
   loadFaceRecognitionModels();
   displayRegisteredFaces();
